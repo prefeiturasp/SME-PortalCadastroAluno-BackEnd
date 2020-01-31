@@ -85,6 +85,8 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "sme_portal_aluno_apps.users.apps.UsersConfig",
+    "sme_portal_aluno_apps.core.apps.CoreConfig",
+    "sme_portal_aluno_apps.alunos.apps.AlunosConfig",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
