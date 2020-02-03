@@ -6,12 +6,13 @@ from django.views.generic import TemplateView
 from django.views import defaults as default_views
 from rest_framework.authtoken.views import obtain_auth_token
 from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core
+from sme_portal_aluno_apps.alunos.urls import urlpatterns as url_alunos
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path(
-        "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
-    ),
+    # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
+    # path(
+    #     "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
+    # ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
@@ -28,6 +29,7 @@ urlpatterns += [
 ]
 
 urlpatterns += url_core
+urlpatterns += url_alunos
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
