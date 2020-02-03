@@ -8,7 +8,7 @@ class AlunoInLine(admin.StackedInline):
     extra = 1  # Quantidade de linhas que serão exibidas.
 
 
-admin.register(Responsavel)
+@admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
     def ultima_alteracao(self, obj):
         return obj.alterado_em.strftime("%d/%m/%Y %H:%M:%S")
@@ -23,4 +23,4 @@ class ResponsavelAdmin(admin.ModelAdmin):
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome')
     list_filter = ('status',)
-    inlines = [Aluno]
+    inlines = [AlunoInLine]

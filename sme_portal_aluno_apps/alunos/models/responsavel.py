@@ -62,13 +62,6 @@ class Responsavel(ModeloBase):
     ddd_celular = models.CharField("DDD Tel. Celular", max_length=4, blank=True, null=True)
     celular = models.CharField("Número Tel. Celular", max_length=9, blank=True, null=True)
 
-    ddd_telefone_fixo = models.CharField("DDD Tel. Fixo", max_length=4, blank=True, null=True)
-    telefone_fixo = models.CharField("Numero Tel. Fixo", max_length=9, blank=True, null=True)
-
-    ddd_telefone_comercial = models.CharField("DDD Tel. Comercial", max_length=4, blank=True, null=True)
-    telefone_comercial = models.CharField("Numero Tel. Comercial", max_length=9, blank=True, null=True)
-    ramal_telefone_comercial = models.CharField("Ramal", max_length=4, blank=True, null=True)
-
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
 
     nome_mae = models.CharField("Nome da Mãe do Responsável", max_length=255, blank=True, null=True)
