@@ -59,7 +59,7 @@ class Responsavel(ModeloBase):
         unique=True
     )
 
-    ddd_celular_responsavel = models.CharField("DDD Tel. Celular", max_length=4, blank=True, null=True)
+    ddd_celular = models.CharField("DDD Tel. Celular", max_length=4, blank=True, null=True)
     celular = models.CharField("Número Tel. Celular", max_length=9, blank=True, null=True)
 
     ddd_telefone_fixo = models.CharField("DDD Tel. Fixo", max_length=4, blank=True, null=True)
