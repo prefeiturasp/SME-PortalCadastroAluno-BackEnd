@@ -9,6 +9,7 @@ def test_instance_model(aluno):
     model = aluno
     assert isinstance(model, Aluno)
     assert model.codigo_eol
+    assert model.data_nascimento
     assert model.responsavel
 
 
