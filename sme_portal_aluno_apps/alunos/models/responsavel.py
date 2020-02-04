@@ -43,7 +43,7 @@ class Responsavel(ModeloBase):
     )
 
     vinculo = models.CharField(
-        'status',
+        'Vínculo',
         max_length=15,
         choices=VINCULO_CHOICES,
         default=VINCULO_RESPONSAVEL_LEGAL

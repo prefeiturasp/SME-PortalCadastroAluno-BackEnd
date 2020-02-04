@@ -7,12 +7,9 @@ from django.views import defaults as default_views
 from rest_framework.authtoken.views import obtain_auth_token
 from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core
 from sme_portal_aluno_apps.alunos.urls import urlpatterns as url_alunos
+from sme_portal_aluno_apps.eol_servico.urls import urlpatterns as url_servico_eol
 
 urlpatterns = [
-    # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    # path(
-    #     "about/", TemplateView.as_view(template_name="pages/about.html"), name="about"
-    # ),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
@@ -29,6 +26,7 @@ urlpatterns += [
 ]
 
 urlpatterns += url_core
+urlpatterns += url_servico_eol
 urlpatterns += url_alunos
 
 if settings.DEBUG:
