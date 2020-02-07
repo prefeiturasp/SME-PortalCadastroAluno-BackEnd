@@ -7,7 +7,7 @@ from .responsavel import Responsavel
 
 class Aluno(ModeloBase):
     codigo_eol = models.CharField(
-        "Código EOL do Aluno", max_length=6, unique=True, validators=[validators.MinLengthValidator(6)])
+        "Código EOL do Aluno", max_length=7, unique=True, validators=[validators.MinLengthValidator(7)])
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
     responsavel = models.ForeignKey(Responsavel, on_delete=models.PROTECT, blank=True, null=True, related_name='Alunos')
 
