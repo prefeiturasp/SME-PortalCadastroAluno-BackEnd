@@ -4,6 +4,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from django.contrib import admin
 
 from .models import (Aluno, Responsavel, LogConsultaEOL)
+from .forms import LogConsultaEOLForm
 
 
 class AlunoInLine(admin.StackedInline):
@@ -31,9 +32,14 @@ class ResponsavelAdmin(admin.ModelAdmin):
 
 @admin.register(LogConsultaEOL)
 class LogConsultaEOLAdmin(admin.ModelAdmin):
+    form = LogConsultaEOLForm
     list_display = ('codigo_eol', 'criado_em',)
+    search_fields = ('codigo_eol',)
+    readonly_fields = ('criado_em',)
     formfield_overrides = {
         fields.JSONField: {'widget': JSONEditorWidget},
     }
-    # fields = ('codigo_eol', 'criado_em', 'json')
+    fields = ('codigo_eol', 'criado_em', 'json')
+    fieldsets = (
+    )
 

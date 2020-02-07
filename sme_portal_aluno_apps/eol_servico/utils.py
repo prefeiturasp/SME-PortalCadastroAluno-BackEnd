@@ -2,6 +2,8 @@ import environ
 import requests
 from rest_framework import status
 
+from ..alunos.models.log_consulta_eol import LogConsultaEOL
+
 env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
 DJANGO_EOL_API_URL = env('DJANGO_EOL_API_URL')
@@ -39,3 +41,7 @@ class EOLService(object):
             raise EOLException(f'Resultados para o código: {codigo_eol} vazios')
         else:
             raise EOLException(f'API EOL com erro. Status: {response.status_code}')
+
+    @classmethod
+    def registra_log(cls, codigo_eol, json):
+        LogConsultaEOL.objects.create(codigo_eol=codigo_eol, json=json)
