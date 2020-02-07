@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from .api.viewsets.aluno_viewset import AlunosViewSet
+from .api.viewsets.alunos_viewset import AlunosViewSet
 
 router = routers.DefaultRouter()
 
