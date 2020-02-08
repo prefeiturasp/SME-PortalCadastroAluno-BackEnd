@@ -14,4 +14,3 @@ class LogConsultaEOLForm(forms.ModelForm):
             'json': JSONEditorWidget(mode='form', height='700px', width='100%')
 
         }
-
