@@ -7,7 +7,7 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Aluno
-        fields = ('uuid', 'codigo_eol', 'data_nascimento', 'responsavel', 'criado_em')
+        fields = ('uuid', 'id', 'codigo_eol', 'data_nascimento', 'responsavel', 'criado_em', 'alterado_em')
 
 
 class AlunoCreateSerializer(serializers.ModelSerializer):
