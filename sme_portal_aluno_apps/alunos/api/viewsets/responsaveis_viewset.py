@@ -25,7 +25,3 @@ class ResponsaveisViewSet(viewsets.ModelViewSet):
             return ResponsavelLookUpSerializer
         else:
             return ResponsavelCreateSerializer
-
-    @action(detail=False, url_path='dados-alunos')
-    def lookup(self, _):
-        return Response(ResponsavelLookUpSerializer(self.queryset.order_by('-criado_em'), many=True).data)

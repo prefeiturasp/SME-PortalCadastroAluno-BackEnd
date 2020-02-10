@@ -5,7 +5,7 @@ from ...api.serializers.aluno_serializer import AlunoSerializer, AlunoCreateSeri
 
 
 class ResponsavelSerializer(serializers.ModelSerializer):
-    alunos = AlunoSerializer(many=True)
+    # alunos = AlunoSerializer(many=True)
 
     class Meta:
         model = Responsavel
@@ -22,10 +22,11 @@ class ResponsavelCreateSerializer(serializers.ModelSerializer):
     alunos = AlunoSerializer(many=True)
 
     def create(self, validated_data):
-
         alunos = validated_data.pop('alunos')
-
-        responsavel = Responsavel.objects.create(**validated_data)
+        try:
+            responsavel = Responsavel.objects.get(cpf=validated_data['cpf'])
+        except Responsavel.DoesNotExist:
+            responsavel = Responsavel.objects.create(**validated_data)
 
         alunos_lista = []
         for aluno in alunos:

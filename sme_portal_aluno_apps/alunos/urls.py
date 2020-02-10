@@ -6,7 +6,7 @@ from .api.viewsets.responsaveis_viewset import ResponsaveisViewSet
 
 router = routers.DefaultRouter()
 
-router.register('responsaveis', ResponsaveisViewSet)
+# router.register('responsaveis', ResponsaveisViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
