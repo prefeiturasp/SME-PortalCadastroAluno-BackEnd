@@ -27,15 +27,20 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         try:
             responsavel = Responsavel.objects.get(cpf=responsavel['cpf'])
         except Responsavel.DoesNotExist:
-            responsavel = Responsavel.objects.create(**responsavel)
-        # responsavel, created = Responsavel.objects.update_or_create(**responsavel)
-        # codigo_eol = validated_data.pop('codigo_eol')
-        # validated_data['responsavel'] = responsavel
+            # responsavel = Responsavel.objects.create(**responsavel)
+            responsavel, created = Responsavel.objects.update_or_create(**responsavel)
+        codigo_eol = validated_data.pop('codigo_eol')
+        validated_data['responsavel'] = responsavel
         print(validated_data)
         try:
-            aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+            aluno = Aluno.objects.get(codigo_eol=codigo_eol)
         except Aluno.DoesNotExist:
-            aluno = Aluno.objects.create(**validated_data, responsavel=responsavel)
+            # aluno = Aluno.objects.create(**validated_data, responsavel=responsavel)
+            aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
+                                                            defaults={
+                                                                'data_nascimento': validated_data.get('data_nascimento'),
+                                                                'responsavel': validated_data.get('responsavel'),
+                                                            })
 
         # aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
         #                                        defaults={
