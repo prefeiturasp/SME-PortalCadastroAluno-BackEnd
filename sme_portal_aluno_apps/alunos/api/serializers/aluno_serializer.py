@@ -1,4 +1,6 @@
-from rest_framework import serializers
+from copy import copy
+
+from rest_framework import serializers, validators
 
 from ...models import Aluno, Responsavel
 from ...api.serializers.responsavel_serializer import ResponsavelSerializer
@@ -20,38 +22,34 @@ class AlunoLookUpSerializer(serializers.ModelSerializer):
 
 
 class AlunoCreateSerializer(serializers.ModelSerializer):
+    codigo_eol = serializers.CharField()
     responsavel = ResponsavelSerializer()
+
+    def run_validators(self, value):
+        for validator in copy(self.validators):
+            if isinstance(validator, validators.UniqueValidator):
+                self.validators.remove(validator)
+        super(AlunoCreateSerializer, self).run_validators(value)
 
     def create(self, validated_data):
         responsavel = validated_data.pop('responsavel')
         try:
-            responsavel = Responsavel.objects.get(cpf=responsavel['cpf'])
+            a = Responsavel.objects.get(cpf=responsavel['cpf'])
+            if a:
+                cpf = responsavel.pop('cpf')
+                resp, created = Responsavel.objects.update_or_create(
+                    cpf = cpf,
+                    defaults={**responsavel})
+                print('resp ', resp)
+                print('responsavel ', responsavel)
         except Responsavel.DoesNotExist:
-            # responsavel = Responsavel.objects.create(**responsavel)
-            responsavel, created = Responsavel.objects.update_or_create(**responsavel)
-        codigo_eol = validated_data.pop('codigo_eol')
-        validated_data['responsavel'] = responsavel
-        print(validated_data)
-        try:
-            aluno = Aluno.objects.get(codigo_eol=codigo_eol)
-        except Aluno.DoesNotExist:
-            # aluno = Aluno.objects.create(**validated_data, responsavel=responsavel)
-            aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
-                                                            defaults={
-                                                                'data_nascimento': validated_data.get('data_nascimento'),
-                                                                'responsavel': validated_data.get('responsavel'),
-                                                            })
-
-        # aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
-        #                                        defaults={
-        #                                            'data_nascimento': validated_data.get('data_nascimento'),
-        #                                            'responsavel': validated_data.get('responsavel', None),
-        #                                        })
-        # aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
-        #                                                 defaults={
-        #                                                     'data_nascimento': validated_data.get('data_nascimento'),
-        #                                                     'responsavel': validated_data.get('responsavel'),
-        #                                                 })
+            resp, created = Responsavel.objects.update_or_create(**responsavel)
+        codigo = validated_data.pop('codigo_eol')
+        validated_data['responsavel'] = resp
+        aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo,
+                                                        defaults={
+                                                            **validated_data
+                                                        })
 
         return aluno
 
