@@ -6,6 +6,7 @@ from ...api.serializers.responsavel_serializer import ResponsavelSerializer
 
 class AlunoSerializer(serializers.ModelSerializer):
     responsaveis = ResponsavelSerializer(source='responsavel')
+    codigo_eol = serializers.CharField(read_only=True)
 
     class Meta:
         model = Aluno
@@ -27,18 +28,25 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             responsavel = Responsavel.objects.get(cpf=responsavel['cpf'])
         except Responsavel.DoesNotExist:
             responsavel = Responsavel.objects.create(**responsavel)
-        codigo_eol = validated_data.pop('codigo_eol')
-        validated_data['responsavel'] = responsavel
+        # responsavel, created = Responsavel.objects.update_or_create(**responsavel)
+        # codigo_eol = validated_data.pop('codigo_eol')
+        # validated_data['responsavel'] = responsavel
         print(validated_data)
-        # aluno = Aluno.objects.create(**validated_data, responsavel=responsavel)
+        try:
+            aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+        except Aluno.DoesNotExist:
+            aluno = Aluno.objects.create(**validated_data, responsavel=responsavel)
 
         # aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
         #                                        defaults={
         #                                            'data_nascimento': validated_data.get('data_nascimento'),
         #                                            'responsavel': validated_data.get('responsavel', None),
         #                                        })
-        aluno, created = Aluno.objects.update_or_create(codigo_eol='8219739',
-                                               defaults={**validated_data})
+        # aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo_eol,
+        #                                                 defaults={
+        #                                                     'data_nascimento': validated_data.get('data_nascimento'),
+        #                                                     'responsavel': validated_data.get('responsavel'),
+        #                                                 })
 
         return aluno
 
