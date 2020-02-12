@@ -32,6 +32,8 @@ class EOLService(object):
         if aluno_existe(codigo_eol):
             aluno = Aluno.objects.get(codigo_eol=codigo_eol)
             response = AlunoSerializer(aluno).data
+            responsaveis = [response['responsaveis']]
+            response['responsaveis'] = responsaveis
             return response
         else:
             response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
