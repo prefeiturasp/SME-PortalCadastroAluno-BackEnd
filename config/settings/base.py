@@ -84,6 +84,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "django_celery_beat",
+    "des",
 ]
 
 LOCAL_APPS = [
@@ -227,11 +228,7 @@ SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = "DENY"
 
 # EMAIL
-# ------------------------------------------------------------------------------
-# https://docs.djangoproject.com/en/dev/ref/settings/#email-backend
-EMAIL_BACKEND = env(
-    "DJANGO_EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend"
-)
+EMAIL_BACKEND = 'des.backends.ConfiguredEmailBackend'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#email-timeout
 EMAIL_TIMEOUT = 5
 
@@ -274,6 +271,7 @@ if USE_TZ:
     # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-timezone
     CELERY_TIMEZONE = TIME_ZONE
 # # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-broker_url
+CELERY_BROKER_URL = env("REDIS_LOCATION")
 # CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 # # http://docs.celeryproject.org/en/latest/userguide/configuration.html#std:setting-result_backend
 # CELERY_RESULT_BACKEND = CELERY_BROKER_URL
