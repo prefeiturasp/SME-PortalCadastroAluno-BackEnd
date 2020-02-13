@@ -42,4 +42,3 @@ class LogConsultaEOLAdmin(admin.ModelAdmin):
     fields = ('codigo_eol', 'criado_em', 'json')
     fieldsets = (
     )
-

@@ -7,17 +7,20 @@ from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 class Responsavel(ModeloBase):
     # Status Choice
     STATUS_ATUALIZADO = 'ATUALIZADO'
+    STATUS_PENDENTE = 'PENDENTE'
     STATUS_DIVERGENTE = 'DIVERGENTE'
     STATUS_ERRO = 'ERRO'
 
     STATUS_NOMES = {
         STATUS_ATUALIZADO: 'Atualizado',
+        STATUS_PENDENTE: 'Pendente',
         STATUS_DIVERGENTE: 'Divergente',
         STATUS_ERRO: 'Erro',
     }
 
     STATUS_CHOICES = (
         (STATUS_ATUALIZADO, STATUS_NOMES[STATUS_ATUALIZADO]),
+        (STATUS_PENDENTE, STATUS_NOMES[STATUS_PENDENTE]),
         (STATUS_DIVERGENTE, STATUS_NOMES[STATUS_DIVERGENTE]),
         (STATUS_ERRO, STATUS_NOMES[STATUS_ERRO]),
     )
@@ -44,7 +47,7 @@ class Responsavel(ModeloBase):
 
     vinculo = models.CharField(
         'Vínculo',
-        max_length=15,
+        max_length=20,
         choices=VINCULO_CHOICES,
         default=VINCULO_RESPONSAVEL_LEGAL
     )
@@ -70,7 +73,7 @@ class Responsavel(ModeloBase):
         'status',
         max_length=15,
         choices=STATUS_CHOICES,
-        default=STATUS_ATUALIZADO
+        default=STATUS_PENDENTE
     )
 
     def __str__(self):

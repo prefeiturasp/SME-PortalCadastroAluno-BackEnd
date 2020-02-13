@@ -25,3 +25,47 @@ def aluno(responsavel):
         data_nascimento='2010-06-12',
         responsavel=responsavel
     )
+
+
+@pytest.fixture
+def payload():
+    return {
+        "codigo_eol": "6541906",
+        "data_nascimento": "2014-05-12",
+        "responsavel": {
+            "nm_responsavel": "João das Neves",
+            "cd_cpf_responsavel": "12481973221",
+            "cd_ddd_celular_responsavel": "27",
+            "nr_celular_responsavel": "998391001",
+            "email_responsavel": "teste@gmail.com",
+            "dc_tipo_responsavel": "RESPONSAVEL_LEGAL",
+            "nome_mae": "Maria das Neves",
+            "data_nascimento": "1992-02-08"
+        }
+    }
+
+
+@pytest.fixture
+def payload_alunos():
+    return [
+        {
+            "codigo_eol": "6219731",
+            "data_nascimento": "2014-04-13"
+        }
+    ]
+
+
+@pytest.fixture
+def payload_responsavel(payload_alunos):
+    return {
+        "alunos": payload_alunos,
+        "vinculo": "RESPONSAVEL_LEGAL",
+        "nome": "João Ninguém",
+        "cpf": "13381973720",
+        "email": "jn@gmail.com",
+        "ddd_celular": "27",
+        "celular": "998391003",
+        "data_nascimento": "1992-02-08",
+        "nome_mae": "Mãe Jão",
+        "status": "PENDENTE"
+    }

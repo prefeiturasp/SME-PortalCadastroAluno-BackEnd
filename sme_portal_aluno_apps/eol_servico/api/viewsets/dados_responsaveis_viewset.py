@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from ...utils import EOLException, EOLService
+from ...utils import EOLException, EOLService, aluno_existe
 import datetime
 
 
@@ -18,10 +18,18 @@ class DadosResponsavelEOLViewSet(ViewSet):
         try:
             codigo_eol = request.data["codigo_eol"]
             dados = EOLService.get_informacoes_responsavel(codigo_eol)
-            if dados:
-                data_nascimento_eol = datetime.datetime.strptime(dados["dt_nascimento_aluno"], "%Y-%m-%dT%H:%M:%S")
-                data_nascimento_request = datetime.datetime.strptime(request.data["data_nascimento"], "%Y-%m-%d")
+            data_nascimento_request = datetime.datetime.strptime(request.data["data_nascimento"], "%Y-%m-%d")
 
+            if aluno_existe(codigo_eol):
+                data_nascimento_banco = datetime.datetime.strptime(dados['data_nascimento'], "%Y-%m-%d")
+                if data_nascimento_request.date() == data_nascimento_banco.date():
+                    return Response({'detail': dados})
+                else:
+                    return Response({'detail': 'Data de nascimento invalida para o código eol informado'},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
+            else:
+                data_nascimento_eol = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
                 if data_nascimento_request.date() == data_nascimento_eol.date():
                     EOLService.registra_log(codigo_eol=codigo_eol, json=dados)
                     dados['responsaveis'][0].pop('cd_cpf_responsavel')
@@ -29,5 +37,6 @@ class DadosResponsavelEOLViewSet(ViewSet):
                 else:
                     return Response({'detail': 'Data de nascimento invalida para o código eol informado'},
                                     status=status.HTTP_400_BAD_REQUEST)
+
         except EOLException as e:
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)

@@ -2,12 +2,10 @@ from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
 from rest_framework.authtoken.views import obtain_auth_token
 from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core
 from sme_portal_aluno_apps.alunos.urls import urlpatterns as url_alunos
-from sme_portal_aluno_apps.eol_servico.urls import urlpatterns as url_servico_eol
 
 urlpatterns = [
     # Django Admin, use {% url 'admin:index' %}
@@ -26,7 +24,6 @@ urlpatterns += [
 ]
 
 urlpatterns += url_core
-urlpatterns += url_servico_eol
 urlpatterns += url_alunos
 
 if settings.DEBUG:
