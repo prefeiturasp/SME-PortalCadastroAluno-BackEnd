@@ -1,7 +1,10 @@
 from django.core import validators
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
+from ..tasks import enviar_email_confirmacao_atualizacao
 
 
 class Responsavel(ModeloBase):
@@ -82,3 +85,9 @@ class Responsavel(ModeloBase):
     class Meta:
         verbose_name = "Responsavel"
         verbose_name_plural = "Responsaveis"
+
+
+@receiver(post_save, sender=Responsavel)
+def proponente_post_save(instance, created, **kwargs):
+    if created and instance and instance.email:
+        enviar_email_confirmacao_atualizacao.delay(instance.email, {'data_encerramento': 'xx/xx'})
