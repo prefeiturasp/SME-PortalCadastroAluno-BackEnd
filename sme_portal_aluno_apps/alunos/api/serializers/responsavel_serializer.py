@@ -14,7 +14,7 @@ class ResponsavelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Responsavel
         fields = ('nm_responsavel', 'cd_cpf_responsavel', 'cd_ddd_celular_responsavel', 'nr_celular_responsavel',
-                  'email_responsavel', 'dc_tipo_responsavel', 'nome_mae', 'data_nascimento')
+                  'email_responsavel', 'dc_tipo_responsavel', 'nome_mae', 'data_nascimento', 'status')
 
 
 class ResponsavelCreateSerializer(serializers.ModelSerializer):
