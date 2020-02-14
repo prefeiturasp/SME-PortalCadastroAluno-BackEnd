@@ -5,6 +5,7 @@ from django.dispatch import receiver
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from ..tasks import enviar_email_confirmacao_atualizacao
+from .validators import phone_validation
 
 
 class Responsavel(ModeloBase):
@@ -66,7 +67,7 @@ class Responsavel(ModeloBase):
     )
 
     ddd_celular = models.CharField("DDD Tel. Celular", max_length=4, blank=True, null=True)
-    celular = models.CharField("Número Tel. Celular", max_length=9, blank=True, null=True)
+    celular = models.CharField("Número Tel. Celular", validators=[phone_validation], max_length=9, blank=True, null=True)
 
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
 
