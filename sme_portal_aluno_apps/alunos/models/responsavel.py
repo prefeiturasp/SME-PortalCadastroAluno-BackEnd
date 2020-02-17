@@ -54,7 +54,6 @@ class Responsavel(ModeloBase):
 
     vinculo = models.IntegerField(
         'Vínculo',
-        max_length=1,
         choices=VINCULO_CHOICES,
         default=VINCULO_RESPONSAVEL_LEGAL
     )
