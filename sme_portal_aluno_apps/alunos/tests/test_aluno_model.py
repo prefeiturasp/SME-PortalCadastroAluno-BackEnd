@@ -10,11 +10,16 @@ def test_instance_model(aluno):
     assert isinstance(model, Aluno)
     assert model.codigo_eol
     assert model.data_nascimento
+    assert model.nome
+    assert model.codigo_escola
+    assert model.codigo_dre
+    assert model.atualizado_na_escola
+    assert model.servidor
     assert model.responsavel
 
 
 def test_srt_model(aluno):
-    assert aluno.__str__() == '005294'
+    assert aluno.__str__() == '005294 - Rafael Aluno da Silva'
 
 
 def test_meta_modelo(aluno):

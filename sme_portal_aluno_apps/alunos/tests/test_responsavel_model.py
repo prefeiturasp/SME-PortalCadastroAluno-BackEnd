@@ -43,4 +43,4 @@ def test_admin():
 
 
 def test_responsavel_status_default_atualizado(responsavel):
-    assert responsavel.status == Responsavel.STATUS_PENDENTE
+    assert responsavel.status == Responsavel.STATUS_ATUALIZADO_VALIDO

@@ -8,7 +8,7 @@ class ResponsavelSerializer(serializers.ModelSerializer):
     cd_cpf_responsavel = serializers.CharField(source='cpf', validators=[validators.cpf_validation])
     cd_ddd_celular_responsavel = serializers.CharField(source='ddd_celular')
     nr_celular_responsavel = serializers.CharField(source='celular', validators=[validators.phone_validation])
-    email_responsavel = serializers.CharField(source='email')
+    email_responsavel = serializers.CharField(source='email', validators=[validators.email_validation])
 
     class Meta:
         model = Responsavel

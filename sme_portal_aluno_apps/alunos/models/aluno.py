@@ -7,12 +7,17 @@ from .responsavel import Responsavel
 
 class Aluno(ModeloBase):
     codigo_eol = models.CharField(
-        "Código EOL do Aluno", max_length=7, unique=True, validators=[validators.MinLengthValidator(7)])
+        "Código EOL do Aluno", max_length=10, unique=True)
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
-    responsavel = models.ForeignKey(Responsavel, on_delete=models.PROTECT, blank=True, null=True, related_name='alunos')
+    nome = models.CharField("Nome do Aluno", max_length=255, blank=True, null=True)
+    codigo_escola = models.CharField("Código EOL da Escola", max_length=10, blank=True, null=True)
+    codigo_dre = models.CharField("Código EOL da DRE", max_length=10, blank=True, null=True)
+    atualizado_na_escola = models.BooleanField("Atualizado na Escola", default=False)
+    servidor = models.CharField("RF do Servidor", max_length=10, blank=True, null=True)
+    responsavel = models.OneToOneField(Responsavel, on_delete=models.CASCADE, blank=True, null=True, related_name='alunos')
 
     def __str__(self):
-        return self.codigo_eol
+        return f"{self.codigo_eol} - {self.nome}"
 
     class Meta:
         verbose_name = "Aluno"
