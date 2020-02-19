@@ -18,10 +18,9 @@ class EOL(object):
                                 headers=cls.DEFAULT_HEADERS,
                                 timeout=cls.DEFAULT_TIMEOUT)
         if response.status_code == status.HTTP_200_OK:
+            cpf_eol = ''
             results = response.json()['results']
-            cpf_eol_api = results[0]['responsaveis'][0].pop('cd_cpf_responsavel')
-            cpf_eol = str(cpf_eol_api)[:-2]
-            if cpf != cpf_eol:
-                return True
-            else:
-                return False
+            if results and results[0]['responsaveis']:
+                cpf_eol_api = results[0]['responsaveis'][0].pop('cd_cpf_responsavel')
+                cpf_eol = str(cpf_eol_api)[:-2]
+            return cpf != cpf_eol

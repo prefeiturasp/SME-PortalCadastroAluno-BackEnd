@@ -1,6 +1,6 @@
 from copy import copy
 
-from rest_framework import serializers, validators
+from rest_framework import serializers
 
 from ...models import Aluno, Responsavel
 from ...api.serializers.responsavel_serializer import ResponsavelSerializer
@@ -26,24 +26,19 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
     codigo_eol = serializers.CharField()
     responsavel = ResponsavelSerializer()
 
-    def run_validators(self, value):
-        for validator in copy(self.validators):
-            if isinstance(validator, validators.UniqueValidator):
-                self.validators.remove(validator)
-        super(AlunoCreateSerializer, self).run_validators(value)
-
     def create(self, validated_data):
+        print((validated_data))
         responsavel = validated_data.pop('responsavel')
         try:
-            obj = Responsavel.objects.get(cpf=responsavel['cpf'])
-            if obj:
+            obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+            if obj_aluno:
                 cpf = responsavel.pop('cpf')
                 if EOL.cpf_divergente(validated_data['codigo_eol'], cpf):
                     responsavel['status'] = 'DIVERGENTE'
                 resp, created = Responsavel.objects.update_or_create(
-                    cpf=cpf,
+                    codigo_eol_aluno=validated_data['codigo_eol'],
                     defaults={**responsavel})
-        except Responsavel.DoesNotExist:
+        except Aluno.DoesNotExist:
             if EOL.cpf_divergente(validated_data['codigo_eol'], responsavel['cpf']):
                 responsavel['status'] = 'DIVERGENTE'
             resp, created = Responsavel.objects.update_or_create(**responsavel)

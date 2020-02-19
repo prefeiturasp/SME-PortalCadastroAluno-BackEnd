@@ -12,8 +12,9 @@ class ResponsavelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Responsavel
-        fields = ('nm_responsavel', 'cd_cpf_responsavel', 'cd_ddd_celular_responsavel', 'nr_celular_responsavel',
-                  'email_responsavel', 'tp_pessoa_responsavel', 'nome_mae', 'data_nascimento', 'status')
+        fields = ('codigo_eol_aluno', 'nm_responsavel', 'cd_cpf_responsavel', 'cd_ddd_celular_responsavel',
+                  'nr_celular_responsavel', 'email_responsavel', 'tp_pessoa_responsavel', 'nome_mae',
+                  'data_nascimento', 'status')
 
 
 class ResponsavelCreateSerializer(serializers.ModelSerializer):
