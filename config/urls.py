@@ -1,18 +1,27 @@
+import environ
+
 from django.conf import settings
 from django.urls import include, path
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.views import defaults as default_views
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework_swagger.views import get_swagger_view
+
 from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core
 from sme_portal_aluno_apps.alunos.urls import urlpatterns as url_alunos
+from sme_portal_aluno_apps.users.urls import urlpatterns as url_users
 from des import urls as des_url
 
+env = environ.Env()
+
+schema_view = get_swagger_view(title='API de Portal Uniformes', url=env.str('DJANGO_API_URL', default=''))
+
 urlpatterns = [
+    path("docs/", schema_view, name='docs'),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
-    path("users/", include("sme_portal_aluno_apps.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     path("django-des/", include(des_url)),
     # Your stuff: custom urls includes go here
@@ -27,6 +36,7 @@ urlpatterns += [
 
 urlpatterns += url_core
 urlpatterns += url_alunos
+urlpatterns += url_users
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
