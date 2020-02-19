@@ -20,4 +20,3 @@ nome_validation = validators.RegexValidator(
     regex=r"^[a-zA-Z]+$",
     message="Não é permitido número",
 )
-

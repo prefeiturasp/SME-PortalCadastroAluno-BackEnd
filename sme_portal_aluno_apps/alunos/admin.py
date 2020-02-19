@@ -48,6 +48,7 @@ class AlunoAdmin(admin.ModelAdmin):
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
     inlines = [AlunoInLine]
+
     def ultima_alteracao(self, obj):
         return obj.alterado_em.strftime("%d/%m/%Y %H:%M:%S")
 

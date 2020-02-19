@@ -1,4 +1,3 @@
-from django.core import validators
 from django.db import models
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
@@ -14,7 +13,8 @@ class Aluno(ModeloBase):
     codigo_dre = models.CharField("Código EOL da DRE", max_length=10, blank=True, null=True)
     atualizado_na_escola = models.BooleanField("Atualizado na Escola", default=False)
     servidor = models.CharField("RF do Servidor", max_length=10, blank=True, null=True)
-    responsavel = models.OneToOneField(Responsavel, on_delete=models.CASCADE, blank=True, null=True, related_name='alunos')
+    responsavel = models.OneToOneField(Responsavel, on_delete=models.CASCADE,
+                                       blank=True, null=True, related_name='alunos')
 
     def __str__(self):
         return f"{self.codigo_eol} - {self.nome}"

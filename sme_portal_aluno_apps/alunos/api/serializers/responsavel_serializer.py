@@ -4,7 +4,7 @@ from ...models import Responsavel, validators
 
 class ResponsavelSerializer(serializers.ModelSerializer):
     nm_responsavel = serializers.CharField(source='nome')
-    dc_tipo_responsavel = serializers.CharField(source='vinculo')
+    tp_pessoa_responsavel = serializers.CharField(source='vinculo')
     cd_cpf_responsavel = serializers.CharField(source='cpf', validators=[validators.cpf_validation])
     cd_ddd_celular_responsavel = serializers.CharField(source='ddd_celular')
     nr_celular_responsavel = serializers.CharField(source='celular', validators=[validators.phone_validation])
@@ -13,7 +13,7 @@ class ResponsavelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Responsavel
         fields = ('nm_responsavel', 'cd_cpf_responsavel', 'cd_ddd_celular_responsavel', 'nr_celular_responsavel',
-                  'email_responsavel', 'dc_tipo_responsavel', 'nome_mae', 'data_nascimento', 'status')
+                  'email_responsavel', 'tp_pessoa_responsavel', 'nome_mae', 'data_nascimento', 'status')
 
 
 class ResponsavelCreateSerializer(serializers.ModelSerializer):
