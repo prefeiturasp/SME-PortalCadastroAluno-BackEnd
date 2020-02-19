@@ -86,6 +86,7 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "django_celery_beat",
     "des",
+    'simple_email_confirmation',
 ]
 
 LOCAL_APPS = [
@@ -205,6 +206,10 @@ TEMPLATES = [
         },
     }
 ]
+
+URL_CONFIGS = {
+    'CONFIRMAR_EMAIL': '/confirmar-email?uuid={uuid}&confirmationKey={confirmation_key}',
+}
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
