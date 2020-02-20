@@ -79,7 +79,7 @@ class Responsavel(ModeloBase):
 
     status = models.CharField(
         'status',
-        max_length=20,
+        max_length=30,
         choices=STATUS_CHOICES,
         default=STATUS_ATUALIZADO_VALIDO
     )
