@@ -4,35 +4,39 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
-from ..tasks import enviar_email_confirmacao_atualizacao
+from ..tasks import enviar_email_confirmacao_pedido
+from .validators import phone_validation, cpf_validation, nome_validation
 
 
 class Responsavel(ModeloBase):
     # Status Choice
-    STATUS_ATUALIZADO = 'ATUALIZADO'
-    STATUS_PENDENTE = 'PENDENTE'
+    STATUS_ATUALIZADO_EOL = 'ATUALIZADO_EOL'
+    STATUS_ATUALIZADO_VALIDO = 'ATUALIZADO_VALIDO'
     STATUS_DIVERGENTE = 'DIVERGENTE'
-    STATUS_ERRO = 'ERRO'
+    STATUS_DESATUALIZADO = 'DESATUALIZADO'
+    STATUS_PENDENCIA_RESOLVIDA = 'PENDENCIA_RESOLVIDA'
 
     STATUS_NOMES = {
-        STATUS_ATUALIZADO: 'Atualizado',
-        STATUS_PENDENTE: 'Pendente',
+        STATUS_ATUALIZADO_EOL: 'Atualizado no EOL',
+        STATUS_ATUALIZADO_VALIDO: 'Atualizado e validado (Aguardando Envio EOL)',
         STATUS_DIVERGENTE: 'Divergente',
-        STATUS_ERRO: 'Erro',
+        STATUS_DESATUALIZADO: 'Desatualizado',
+        STATUS_PENDENCIA_RESOLVIDA: 'Pendência Resolvida na Escola',
     }
 
     STATUS_CHOICES = (
-        (STATUS_ATUALIZADO, STATUS_NOMES[STATUS_ATUALIZADO]),
-        (STATUS_PENDENTE, STATUS_NOMES[STATUS_PENDENTE]),
+        (STATUS_ATUALIZADO_EOL, STATUS_NOMES[STATUS_ATUALIZADO_EOL]),
+        (STATUS_ATUALIZADO_VALIDO, STATUS_NOMES[STATUS_ATUALIZADO_VALIDO]),
         (STATUS_DIVERGENTE, STATUS_NOMES[STATUS_DIVERGENTE]),
-        (STATUS_ERRO, STATUS_NOMES[STATUS_ERRO]),
+        (STATUS_DESATUALIZADO, STATUS_NOMES[STATUS_DESATUALIZADO]),
+        (STATUS_PENDENCIA_RESOLVIDA, STATUS_NOMES[STATUS_PENDENCIA_RESOLVIDA]),
     )
 
     # Vinculo Choice
-    VINCULO_MAE = 'MAE'
-    VINCULO_PAI = 'PAI'
-    VINCULO_RESPONSAVEL_LEGAL = 'RESPONSAVEL_LEGAL'
-    VINCULO_ALUNO_MAIOR_IDADE = 'ALUNO_MAIOR_IDADE'
+    VINCULO_MAE = 1
+    VINCULO_PAI = 2
+    VINCULO_RESPONSAVEL_LEGAL = 3
+    VINCULO_ALUNO_MAIOR_IDADE = 4
 
     VINCULO_NOMES = {
         VINCULO_MAE: 'Mãe',
@@ -48,25 +52,26 @@ class Responsavel(ModeloBase):
         (VINCULO_ALUNO_MAIOR_IDADE, VINCULO_NOMES[VINCULO_ALUNO_MAIOR_IDADE]),
     )
 
-    vinculo = models.CharField(
+    vinculo = models.IntegerField(
         'Vínculo',
-        max_length=20,
         choices=VINCULO_CHOICES,
         default=VINCULO_RESPONSAVEL_LEGAL
     )
 
+    codigo_eol_aluno = models.CharField("Código EOL do Aluno", max_length=10, blank=True, null=True)
+
     nome = models.CharField("Nome do Responsável", max_length=255, blank=True, null=True)
 
     cpf = models.CharField(
-        "CPF", max_length=11, blank=True, null=True, unique=True, validators=[validators.MinLengthValidator(11)])
+        "CPF", max_length=11, blank=True, null=True, validators=[cpf_validation])
 
     email = models.CharField(
-        "E-mail", max_length=255, validators=[validators.EmailValidator()], blank=True, null=True, default="",
-        unique=True
+        "E-mail", max_length=255, validators=[validators.EmailValidator()], blank=True, null=True
     )
 
-    ddd_celular = models.CharField("DDD Tel. Celular", max_length=4, blank=True, null=True)
-    celular = models.CharField("Número Tel. Celular", max_length=9, blank=True, null=True)
+    ddd_celular = models.CharField("DDD Celular", max_length=4, blank=True, null=True)
+
+    celular = models.CharField("Número Celular", validators=[phone_validation], max_length=9, blank=True, null=True)
 
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
 
@@ -74,9 +79,9 @@ class Responsavel(ModeloBase):
 
     status = models.CharField(
         'status',
-        max_length=15,
+        max_length=20,
         choices=STATUS_CHOICES,
-        default=STATUS_PENDENTE
+        default=STATUS_ATUALIZADO_VALIDO
     )
 
     def __str__(self):
@@ -90,4 +95,4 @@ class Responsavel(ModeloBase):
 @receiver(post_save, sender=Responsavel)
 def proponente_post_save(instance, created, **kwargs):
     if created and instance and instance.email:
-        enviar_email_confirmacao_atualizacao.delay(instance.email, {'data_encerramento': 'xx/xx'})
+        enviar_email_confirmacao_pedido.delay(instance.email, {'data_encerramento': 'xx/xx'})

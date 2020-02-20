@@ -31,9 +31,15 @@ class DadosResponsavelEOLViewSet(ViewSet):
             else:
                 data_nascimento_eol = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
                 if data_nascimento_request.date() == data_nascimento_eol.date():
-                    EOLService.registra_log(codigo_eol=codigo_eol, json=dados)
-                    dados['responsaveis'][0].pop('cd_cpf_responsavel')
-                    return Response({'detail': dados})
+                    if dados['recebe_uniforme'] == 'S':
+                        EOLService.registra_log(codigo_eol=codigo_eol, json=dados)
+                        if dados['responsaveis']:
+                            dados['responsaveis'][0].pop('cd_cpf_responsavel')
+                        return Response({'detail': dados})
+                    else:
+                        return Response({'detail': 'Este estudante não faz parte do público do programa de uniforme '
+                                                   'escolar'},
+                                        status=status.HTTP_400_BAD_REQUEST)
                 else:
                     return Response({'detail': 'Data de nascimento invalida para o código eol informado'},
                                     status=status.HTTP_400_BAD_REQUEST)

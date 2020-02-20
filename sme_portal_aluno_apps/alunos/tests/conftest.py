@@ -7,7 +7,7 @@ def responsavel():
     return baker.make(
         'Responsavel',
         nome='Fulano',
-        vinculo='Pai',
+        vinculo=2,
         cpf='72641869977',
         email='teste@teste.com',
         ddd_celular='027',
@@ -23,6 +23,11 @@ def aluno(responsavel):
         'Aluno',
         codigo_eol='005294',
         data_nascimento='2010-06-12',
+        nome='Rafael Aluno da Silva',
+        codigo_escola='123456',
+        codigo_dre='654321',
+        atualizado_na_escola=True,
+        servidor='147852',
         responsavel=responsavel
     )
 
@@ -32,13 +37,17 @@ def payload():
     return {
         "codigo_eol": "6541906",
         "data_nascimento": "2014-05-12",
+        "nome": "João Junior",
+        "codigo_escola": "123654",
+        "codigo_dre": "741258",
         "responsavel": {
+            "codigo_eol_aluno": "6541906",
             "nm_responsavel": "João das Neves",
             "cd_cpf_responsavel": "12481973221",
             "cd_ddd_celular_responsavel": "27",
             "nr_celular_responsavel": "998391001",
             "email_responsavel": "teste@gmail.com",
-            "dc_tipo_responsavel": "RESPONSAVEL_LEGAL",
+            "tp_pessoa_responsavel": 2,
             "nome_mae": "Maria das Neves",
             "data_nascimento": "1992-02-08"
         }

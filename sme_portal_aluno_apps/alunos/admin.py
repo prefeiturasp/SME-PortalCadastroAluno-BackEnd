@@ -9,11 +9,46 @@ from .forms import LogConsultaEOLForm
 
 class AlunoInLine(admin.StackedInline):
     model = Aluno
-    extra = 1  # Quantidade de linhas que serão exibidas.
+    extra = 0  # Quantidade de linhas que serão exibidas.
+
+
+class ResponsavelInLine(admin.StackedInline):
+    model = Responsavel
+    extra = 0  # Quantidade de linhas que serão exibidas.
+
+
+@admin.register(Aluno)
+class AlunoAdmin(admin.ModelAdmin):
+    def ultima_alteracao(self, obj):
+        return obj.alterado_em.strftime("%d/%m/%Y %H:%M:%S")
+
+    ultima_alteracao.admin_order_field = 'alterado_em'
+    ultima_alteracao.short_description = 'Última alteração'
+
+    def celular(self, obj):
+        return obj.responsavel.ddd_celular + ' ' + obj.responsavel.celular
+
+    def nome_responsavel(self, obj):
+        return obj.responsavel.nome
+
+    nome_responsavel.short_descriptions = 'Nome do Responsavel'
+
+    def cpf_responsavel(self, obj):
+        return obj.responsavel.cpf
+
+    cpf_responsavel.short_descriptions = 'CPF do Responsavel'
+
+    list_display = ('nome', 'codigo_eol', 'data_nascimento', 'nome_responsavel',
+                    'cpf_responsavel', 'celular')
+    ordering = ('-alterado_em',)
+    search_fields = ('codigo_eol', 'nome', 'responsavel__cpf', 'responsavel__nome')
+    list_filter = ('responsavel__status',)
 
 
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
+    inlines = [AlunoInLine]
+
     def ultima_alteracao(self, obj):
         return obj.alterado_em.strftime("%d/%m/%Y %H:%M:%S")
 
@@ -27,7 +62,6 @@ class ResponsavelAdmin(admin.ModelAdmin):
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome')
     list_filter = ('status',)
-    inlines = [AlunoInLine]
 
 
 @admin.register(LogConsultaEOL)
@@ -40,5 +74,3 @@ class LogConsultaEOLAdmin(admin.ModelAdmin):
         fields.JSONField: {'widget': JSONEditorWidget},
     }
     fields = ('codigo_eol', 'criado_em', 'json')
-    fieldsets = (
-    )

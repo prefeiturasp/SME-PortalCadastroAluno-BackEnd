@@ -14,10 +14,10 @@ env = environ.Env()
     retry_backoff=2,
     retry_kwargs={'max_retries': 8},
 )
-def enviar_email_confirmacao_atualizacao(email, contexto):
+def enviar_email_confirmacao_pedido(email, contexto):
     return enviar_email_html(
-        'Obrigado pela atualização dos dados',
-        'email_confirmacao_atualizacao',
+        'Obrigado por solicitar o uniforme escolar',
+        'email_confirmacao_pedido',
         contexto,
         email
     )

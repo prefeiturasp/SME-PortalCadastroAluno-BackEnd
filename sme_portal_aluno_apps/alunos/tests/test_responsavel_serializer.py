@@ -15,6 +15,6 @@ def test_responsavel_serializer(responsavel):
     assert responsavel_serializer.data['cd_ddd_celular_responsavel']
     assert responsavel_serializer.data['nr_celular_responsavel']
     assert responsavel_serializer.data['nome_mae']
-    assert responsavel_serializer.data['dc_tipo_responsavel']
+    assert responsavel_serializer.data['tp_pessoa_responsavel']
     assert responsavel_serializer.data['email_responsavel']
 
