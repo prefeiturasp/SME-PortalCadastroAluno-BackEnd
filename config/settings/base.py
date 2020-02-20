@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import datetime
 import environ
 
 ROOT_DIR = (
@@ -313,9 +314,10 @@ SOCIALACCOUNT_ADAPTER = "sme_portal_aluno_apps.users.adapters.SocialAccountAdapt
 # -------------------------------------------------------------------------------
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema"
@@ -323,6 +325,11 @@ REST_FRAMEWORK = {
 # Your stuff...
 # ------------------------------------------------------------------------------
 
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=100),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=100),
+    'JWT_ALLOW_REFRESH': True,
+}
 # CORS
 # CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default="http://localhost:3000")
 CORS_ORIGIN_ALLOW_ALL = True

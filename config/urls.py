@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.views import defaults as default_views
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_swagger.views import get_swagger_view
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
 from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core
 from sme_portal_aluno_apps.alunos.urls import urlpatterns as url_alunos
@@ -32,6 +33,8 @@ urlpatterns += [
     path("api/", include("config.api_router")),
     # DRF auth token
     path("auth-token/", obtain_auth_token),
+    path('api-token-auth/', obtain_jwt_token),
+    path('api-token-refresh/', refresh_jwt_token),
 ]
 
 urlpatterns += url_core
