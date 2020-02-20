@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
-from ..tasks import enviar_email_confirmacao_atualizacao
+from ..tasks import enviar_email_confirmacao_pedido
 from .validators import phone_validation, cpf_validation, nome_validation
 
 
@@ -95,4 +95,4 @@ class Responsavel(ModeloBase):
 @receiver(post_save, sender=Responsavel)
 def proponente_post_save(instance, created, **kwargs):
     if created and instance and instance.email:
-        enviar_email_confirmacao_atualizacao.delay(instance.email, {'data_encerramento': 'xx/xx'})
+        enviar_email_confirmacao_pedido.delay(instance.email, {'data_encerramento': 'xx/xx'})
