@@ -60,7 +60,7 @@ class Responsavel(ModeloBase):
 
     codigo_eol_aluno = models.CharField("Código EOL do Aluno", max_length=10, blank=True, null=True)
 
-    nome = models.CharField("Nome do Responsável", max_length=255, blank=True, null=True, validators=[nome_validation])
+    nome = models.CharField("Nome do Responsável", max_length=255, blank=True, null=True)
 
     cpf = models.CharField(
         "CPF", max_length=11, blank=True, null=True, validators=[cpf_validation])
