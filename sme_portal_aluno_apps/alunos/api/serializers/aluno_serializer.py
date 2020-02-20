@@ -12,7 +12,8 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Aluno
-        fields = ('uuid', 'codigo_eol', 'nome', 'data_nascimento', 'criado_em', 'responsaveis')
+        fields = ('uuid', 'codigo_eol', 'nome', 'data_nascimento', 'codigo_escola', 'codigo_dre',
+                  'criado_em', 'responsaveis')
 
 
 class AlunoLookUpSerializer(serializers.ModelSerializer):
@@ -30,10 +31,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             informacoes_aluno = EOLService.get_informacoes_responsavel(validated_data['codigo_eol'])
         except EOLException as e:
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
-        if informacoes_aluno:
-            validated_data['nome'] = informacoes_aluno['nm_aluno']
-            validated_data['codigo_escola'] = informacoes_aluno['cd_escola']
-            validated_data['codigo_dre'] = informacoes_aluno['cd_dre']
+
         responsavel = validated_data.pop('responsavel')
         try:
             obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
@@ -44,9 +42,17 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 resp, created = Responsavel.objects.update_or_create(
                     codigo_eol_aluno=validated_data['codigo_eol'],
                     defaults={**responsavel})
+                if informacoes_aluno:
+                    validated_data['nome'] = informacoes_aluno['nome']
+                    validated_data['codigo_escola'] = informacoes_aluno['codigo_escola']
+                    validated_data['codigo_dre'] = informacoes_aluno['codigo_dre']
         except Aluno.DoesNotExist:
             if EOLService.cpf_divergente(validated_data['codigo_eol'], responsavel['cpf']):
                 responsavel['status'] = 'DIVERGENTE'
+            if informacoes_aluno:
+                validated_data['nome'] = informacoes_aluno['nm_aluno']
+                validated_data['codigo_escola'] = informacoes_aluno['cd_escola']
+                validated_data['codigo_dre'] = informacoes_aluno['cd_dre']
             resp, created = Responsavel.objects.update_or_create(**responsavel)
         codigo = validated_data.pop('codigo_eol')
         validated_data['responsavel'] = resp
