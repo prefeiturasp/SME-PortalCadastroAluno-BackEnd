@@ -1,10 +1,9 @@
-from copy import copy
-
-from rest_framework import serializers
+from rest_framework.response import Response
+from rest_framework import serializers, status
 
 from ...models import Aluno, Responsavel
 from ...api.serializers.responsavel_serializer import ResponsavelSerializer
-from ...utils import EOL
+from sme_portal_aluno_apps.eol_servico.utils import EOLService, EOLException
 
 
 class AlunoSerializer(serializers.ModelSerializer):
@@ -13,7 +12,7 @@ class AlunoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Aluno
-        fields = ('uuid', 'codigo_eol', 'data_nascimento', 'criado_em', 'responsaveis')
+        fields = ('uuid', 'codigo_eol', 'nome', 'data_nascimento', 'criado_em', 'responsaveis')
 
 
 class AlunoLookUpSerializer(serializers.ModelSerializer):
@@ -27,19 +26,26 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
     responsavel = ResponsavelSerializer()
 
     def create(self, validated_data):
-        print((validated_data))
+        try:
+            informacoes_aluno = EOLService.get_informacoes_responsavel(validated_data['codigo_eol'])
+        except EOLException as e:
+            return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+        if informacoes_aluno:
+            validated_data['nome'] = informacoes_aluno['nm_aluno']
+            validated_data['codigo_escola'] = informacoes_aluno['cd_escola']
+            validated_data['codigo_dre'] = informacoes_aluno['cd_dre']
         responsavel = validated_data.pop('responsavel')
         try:
             obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             if obj_aluno:
                 cpf = responsavel.pop('cpf')
-                if EOL.cpf_divergente(validated_data['codigo_eol'], cpf):
+                if EOLService.cpf_divergente(validated_data['codigo_eol'], cpf):
                     responsavel['status'] = 'DIVERGENTE'
                 resp, created = Responsavel.objects.update_or_create(
                     codigo_eol_aluno=validated_data['codigo_eol'],
                     defaults={**responsavel})
         except Aluno.DoesNotExist:
-            if EOL.cpf_divergente(validated_data['codigo_eol'], responsavel['cpf']):
+            if EOLService.cpf_divergente(validated_data['codigo_eol'], responsavel['cpf']):
                 responsavel['status'] = 'DIVERGENTE'
             resp, created = Responsavel.objects.update_or_create(**responsavel)
         codigo = validated_data.pop('codigo_eol')
