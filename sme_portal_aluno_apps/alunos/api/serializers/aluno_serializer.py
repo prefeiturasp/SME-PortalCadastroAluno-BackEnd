@@ -36,9 +36,11 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         try:
             obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             if obj_aluno:
-                cpf = responsavel.pop('cpf')
+                cpf = responsavel['cpf']
                 if EOLService.cpf_divergente(validated_data['codigo_eol'], cpf):
                     responsavel['status'] = 'DIVERGENTE'
+                else:
+                    responsavel['status'] = 'STATUS_ATUALIZADO_VALIDO'
                 resp, created = Responsavel.objects.update_or_create(
                     codigo_eol_aluno=validated_data['codigo_eol'],
                     defaults={**responsavel})
