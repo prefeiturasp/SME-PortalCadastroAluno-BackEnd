@@ -4,7 +4,7 @@ from rest_framework import status
 
 from ..alunos.models import Aluno
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
-from ..alunos.api.serializers.aluno_serializer import AlunoSerializer
+from ..alunos.api.services.aluno_service import AlunoService
 
 env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
@@ -33,11 +33,7 @@ class EOLService(object):
     @classmethod
     def get_informacoes_responsavel(cls, codigo_eol):
         if aluno_existe(codigo_eol):
-            aluno = Aluno.objects.get(codigo_eol=codigo_eol)
-            response = AlunoSerializer(aluno).data
-            responsaveis = [response['responsaveis']]
-            response['responsaveis'] = responsaveis
-            return response
+            return AlunoService.get_aluno_serializer(codigo_eol)
         else:
             response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
                                     headers=cls.DEFAULT_HEADERS,
@@ -83,3 +79,16 @@ class EOLService(object):
             raise EOLException(f'Resultados para o RF: {registro_funcional} vazios')
         else:
             raise EOLException(f'API EOL com erro. Status: {response.status_code}')
+
+    def cpf_divergente(cls, codigo_eol, cpf):
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            cpf_eol = ''
+            results = response.json()['results']
+            if results and results[0]['responsaveis']:
+                cpf_eol_api = results[0]['responsaveis'][0].pop('cd_cpf_responsavel')
+                cpf_eol = str(cpf_eol_api)[:-2]
+            return cpf != cpf_eol
+

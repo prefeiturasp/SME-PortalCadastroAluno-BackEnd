@@ -33,7 +33,8 @@ class DadosResponsavelEOLViewSet(ViewSet):
                 if data_nascimento_request.date() == data_nascimento_eol.date():
                     if dados['recebe_uniforme'] == 'S':
                         EOLService.registra_log(codigo_eol=codigo_eol, json=dados)
-                        dados['responsaveis'][0].pop('cd_cpf_responsavel')
+                        if dados['responsaveis']:
+                            dados['responsaveis'][0].pop('cd_cpf_responsavel')
                         return Response({'detail': dados})
                     else:
                         return Response({'detail': 'Este estudante não faz parte do público do programa de uniforme '
