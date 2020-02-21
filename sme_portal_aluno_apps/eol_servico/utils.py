@@ -79,7 +79,8 @@ class EOLService(object):
             raise EOLException(f'Resultados para o RF: {registro_funcional} vazios')
         else:
             raise EOLException(f'API EOL com erro. Status: {response.status_code}')
-
+    
+    @classmethod
     def cpf_divergente(cls, codigo_eol, cpf):
         response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
                                 headers=cls.DEFAULT_HEADERS,
