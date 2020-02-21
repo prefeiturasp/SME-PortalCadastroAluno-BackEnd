@@ -1,14 +1,14 @@
-from django.urls import path
+from django.urls import include, path
+from rest_framework import routers
 
-from sme_portal_aluno_apps.users.views import (
-    user_redirect_view,
-    user_update_view,
-    user_detail_view,
-)
+from .api import viewsets
 
-app_name = "users"
+router = routers.DefaultRouter()
+
+router.register('usuarios', viewsets.UserViewSet, 'Usuários')
+router.register('confirmar_email/(?P<uuid>[^/]+)/(?P<confirmation_key>[^/]+)',
+                viewsets.UsuarioConfirmaEmailViewSet, 'Confirmar E-mail')
+
 urlpatterns = [
-    path("~redirect/", view=user_redirect_view, name="redirect"),
-    path("~update/", view=user_update_view, name="update"),
-    path("<str:username>/", view=user_detail_view, name="detail"),
+    path('', include(router.urls))
 ]

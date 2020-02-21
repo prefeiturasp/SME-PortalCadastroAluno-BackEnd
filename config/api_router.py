@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter, SimpleRouter
 from django.conf import settings
-from sme_portal_aluno_apps.users.api.views import UserViewSet
+from sme_portal_aluno_apps.users.api.viewsets import UserViewSet
 
 if settings.DEBUG:
     router = DefaultRouter()

@@ -2,6 +2,7 @@
 Base settings to build other settings files upon.
 """
 
+import datetime
 import environ
 
 ROOT_DIR = (
@@ -82,9 +83,11 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "rest_framework",
+    "rest_framework_swagger",
     "rest_framework.authtoken",
     "django_celery_beat",
     "des",
+    'simple_email_confirmation',
 ]
 
 LOCAL_APPS = [
@@ -205,6 +208,10 @@ TEMPLATES = [
     }
 ]
 
+URL_CONFIGS = {
+    'CONFIRMAR_EMAIL': '/confirmar-email?uuid={uuid}&confirmationKey={confirmation_key}',
+}
+
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
@@ -252,7 +259,7 @@ LOGGING = {
     "formatters": {
         "verbose": {
             "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
+                      "%(process)d %(thread)d %(message)s"
         }
     },
     "handlers": {
@@ -307,15 +314,22 @@ SOCIALACCOUNT_ADAPTER = "sme_portal_aluno_apps.users.adapters.SocialAccountAdapt
 # -------------------------------------------------------------------------------
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema"
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
 
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=100),
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=100),
+    'JWT_ALLOW_REFRESH': True,
+}
 # CORS
 # CORS_ORIGIN_WHITELIST = env.list('CORS_ORIGIN_WHITELIST', default="http://localhost:3000")
 CORS_ORIGIN_ALLOW_ALL = True
