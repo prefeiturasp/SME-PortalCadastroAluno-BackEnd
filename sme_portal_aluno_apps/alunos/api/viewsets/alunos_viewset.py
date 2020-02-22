@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
@@ -14,7 +15,12 @@ class AlunosViewSet(viewsets.ModelViewSet):
     serializer_class = AlunoSerializer
 
     def get_queryset(self):
-        return self.queryset
+        queryset = self.queryset
+        nome = self.request.query_params.get('nome')
+        if nome is not None:
+            queryset = queryset.filter(
+                Q(nome__contains=nome) | Q(responsavel__nome__contains=nome))
+        return queryset
 
     def get_serializer_class(self):
         if self.action == 'list':
@@ -22,7 +28,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
         else:
             return AlunoCreateSerializer
 
-    def retrieve(self, request, codigo_eol=None):
+    def retrieve(self, request, codigo_eol=None, **kwargs):
         aluno = Aluno.objects.get(codigo_eol=codigo_eol)
         data = AlunoSerializer(aluno).data
         responsaveis = [data['responsaveis']]

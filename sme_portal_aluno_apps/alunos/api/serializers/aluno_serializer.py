@@ -17,9 +17,14 @@ class AlunoSerializer(serializers.ModelSerializer):
 
 
 class AlunoLookUpSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField('get_status')
+
+    def get_status(self, obj):
+        return obj.responsavel.status
+
     class Meta:
         model = Aluno
-        fields = ('uuid', 'codigo_eol', 'data_nascimento', 'criado_em')
+        fields = ('codigo_eol', 'nome', 'data_nascimento', 'status')
 
 
 class AlunoCreateSerializer(serializers.ModelSerializer):
