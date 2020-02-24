@@ -1,5 +1,5 @@
 from django import forms
-from django_json_widget.widgets import JSONEditorWidget
+# from django_json_widget.widgets import JSONEditorWidget
 from .models import LogConsultaEOL
 
 
@@ -9,8 +9,8 @@ class LogConsultaEOLForm(forms.ModelForm):
 
         fields = ('json',)
 
-        widgets = {
-            # choose one mode from ['text', 'code', 'tree', 'form', 'view']
-            'json': JSONEditorWidget(mode='form', height='700px', width='100%')
+        # widgets = {
+        #     # choose one mode from ['text', 'code', 'tree', 'form', 'view']
+        #     'json': JSONEditorWidget(mode='form', height='700px', width='100%')
 
-        }
+        # }

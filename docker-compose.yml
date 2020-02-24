@@ -29,7 +29,9 @@ services:
     build: .
     env_file: .env
     ports:
-      - 8000:8000
+      - 8001:8000
+    volumes:
+      - ./staticfiles:/code/staticfiles
     depends_on:
       - db
       - redis

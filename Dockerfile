@@ -37,6 +37,6 @@ RUN apk update && apk add postgresql-dev tzdata && \
   rm -rf /var/cache/apk/* && \
   rm -rf /root/.cache
 
-CMD gunicorn config.wsgi:application --bind=0.0.0.0:8000 -w 8
+CMD gunicorn config.wsgi:application --bind=0.0.0.0:8000 -w 1
 
 EXPOSE 8000
