@@ -11,8 +11,7 @@ class ListaPalavrasBloqueadasViewSet(viewsets.ModelViewSet):
     lookup_field = 'uuid'
     queryset = ListaPalavrasBloqueadas.objects.all()
     serializer_class = ListaPalavrasBloqueadasSerializer
-    permission_classes = (AllowAny,)
 
-    def list(self, request):
+    def list(self, request, **kwargs):
         palavras = self.get_queryset().values_list('palavra', flat=True)
         return Response(palavras, status=status.HTTP_200_OK)
