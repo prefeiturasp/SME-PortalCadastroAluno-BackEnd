@@ -1,5 +1,5 @@
 from django.contrib.postgres import fields
-# from django_json_widget.widgets import JSONEditorWidget
+from django_json_widget.widgets import JSONEditorWidget
 
 from django.contrib import admin
 
@@ -70,7 +70,7 @@ class LogConsultaEOLAdmin(admin.ModelAdmin):
     list_display = ('codigo_eol', 'criado_em',)
     search_fields = ('codigo_eol',)
     readonly_fields = ('criado_em',)
-    # formfield_overrides = {
-    #     fields.JSONField: {'widget': JSONEditorWidget},
-    # }
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
     fields = ('codigo_eol', 'criado_em', 'json')
