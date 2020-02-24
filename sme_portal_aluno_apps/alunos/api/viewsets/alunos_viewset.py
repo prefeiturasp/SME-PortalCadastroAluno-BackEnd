@@ -1,7 +1,7 @@
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 from ..serializers.aluno_serializer import (AlunoSerializer, AlunoLookUpSerializer, AlunoCreateSerializer)
 
@@ -9,7 +9,7 @@ from ...models.aluno import Aluno
 
 
 class AlunosViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = (IsAuthenticated,)
     lookup_field = 'codigo_eol'
     queryset = Aluno.objects.all()
     serializer_class = AlunoSerializer

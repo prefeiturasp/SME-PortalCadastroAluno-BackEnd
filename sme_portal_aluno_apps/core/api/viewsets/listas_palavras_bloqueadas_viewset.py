@@ -7,6 +7,7 @@ from ...models.lista_palavras_bloqueadas import ListaPalavrasBloqueadas
 
 
 class ListaPalavrasBloqueadasViewSet(viewsets.ModelViewSet):
+    permission_classes = [AllowAny]
     lookup_field = 'uuid'
     queryset = ListaPalavrasBloqueadas.objects.all()
     serializer_class = ListaPalavrasBloqueadasSerializer
