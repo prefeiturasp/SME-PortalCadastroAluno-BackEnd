@@ -45,7 +45,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 if EOLService.cpf_divergente(validated_data['codigo_eol'], cpf):
                     responsavel['status'] = 'DIVERGENTE'
                 else:
-                    responsavel['status'] = 'STATUS_ATUALIZADO_VALIDO'
+                    responsavel['status'] = 'ATUALIZADO_VALIDO'
                 resp, created = Responsavel.objects.update_or_create(
                     codigo_eol_aluno=validated_data['codigo_eol'],
                     defaults={**responsavel})
@@ -68,6 +68,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                                                             **validated_data
                                                         })
 
+        resp.enviar_email_confirmacao()
         return aluno
 
     class Meta:
