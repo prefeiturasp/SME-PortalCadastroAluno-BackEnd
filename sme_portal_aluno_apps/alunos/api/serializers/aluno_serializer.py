@@ -18,13 +18,17 @@ class AlunoSerializer(serializers.ModelSerializer):
 
 class AlunoLookUpSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField('get_status')
+    responsavel_nome = serializers.SerializerMethodField()
+
+    def get_responsavel_nome(self, obj):
+        return obj.responsavel.nome
 
     def get_status(self, obj):
         return obj.responsavel.status
 
     class Meta:
         model = Aluno
-        fields = ('codigo_eol', 'nome', 'data_nascimento', 'status')
+        fields = ('codigo_eol', 'nome', 'data_nascimento', 'status', 'responsavel_nome')
 
 
 class AlunoCreateSerializer(serializers.ModelSerializer):
