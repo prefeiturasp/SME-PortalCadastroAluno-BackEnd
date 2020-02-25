@@ -1,8 +1,10 @@
+import datetime
+
 import environ
 import requests
 from rest_framework import status
 
-from ..alunos.models import Aluno
+from ..alunos.models import Aluno, Responsavel
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
 from ..alunos.api.services.aluno_service import AlunoService
 
@@ -79,7 +81,7 @@ class EOLService(object):
             raise EOLException(f'Resultados para o RF: {registro_funcional} vazios')
         else:
             raise EOLException(f'API EOL com erro. Status: {response.status_code}')
-    
+
     @classmethod
     def cpf_divergente(cls, codigo_eol, cpf):
         response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
@@ -93,3 +95,28 @@ class EOLService(object):
                 cpf_eol = str(cpf_eol_api)[:-2]
             return cpf != cpf_eol
 
+    @classmethod
+    def cria_aluno_desatualizado(cls, codigo_eol):
+        dados = cls.get_informacoes_responsavel(codigo_eol)
+        cls.registra_log(codigo_eol, dados)
+        data_nascimento = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
+
+        responsavel = Responsavel.objects.create(
+            vinculo=dados['responsaveis'][0]['tp_pessoa_responsavel'],
+            codigo_eol_aluno=codigo_eol,
+            nome=dados['responsaveis'][0]['nm_responsavel'].strip(),
+            cpf=str(dados['responsaveis'][0]['cd_cpf_responsavel'])[:-2],
+            ddd_celular=dados['responsaveis'][0]['cd_ddd_celular_responsavel'].strip(),
+            celular=dados['responsaveis'][0]['nr_celular_responsavel'],
+            status='DESATUALIZADO'
+        )
+
+        aluno = Aluno.objects.create(
+            codigo_eol=codigo_eol,
+            data_nascimento=data_nascimento,
+            nome=dados['nm_aluno'],
+            codigo_escola=dados['cd_escola'],
+            codigo_dre=dados['cd_dre'],
+            responsavel=responsavel,
+        )
+        return aluno

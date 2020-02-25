@@ -17,6 +17,8 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
     name = CharField(_("Name of User"), blank=True, max_length=255)
     cpf = CharField(_('CPF'), max_length=11, blank=True, null=True, unique=True,  # noqa DJ01
                     validators=[MinLengthValidator(11)])
+    codigo_escola = CharField("Código EOL da Escola", max_length=10, blank=True, null=True)
+    codigo_dre = CharField("Código EOL da DRE", max_length=10, blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse("users:detail", kwargs={"username": self.username})

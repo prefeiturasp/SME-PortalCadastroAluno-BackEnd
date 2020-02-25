@@ -12,6 +12,6 @@ class ListaPalavrasBloqueadasViewSet(viewsets.ModelViewSet):
     queryset = ListaPalavrasBloqueadas.objects.all()
     serializer_class = ListaPalavrasBloqueadasSerializer
 
-    def list(self, request):
+    def list(self, request, **kwargs):
         palavras = self.get_queryset().values_list('palavra', flat=True)
         return Response(palavras, status=status.HTTP_200_OK)
