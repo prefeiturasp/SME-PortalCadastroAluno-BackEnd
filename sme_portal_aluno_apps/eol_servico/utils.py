@@ -1,3 +1,4 @@
+import logging
 import datetime
 
 import environ
@@ -13,6 +14,8 @@ DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
 DJANGO_EOL_API_URL = env('DJANGO_EOL_API_URL')
 DJANGO_EOL_API_TERC_TOKEN = env('DJANGO_EOL_API_TERC_TOKEN')
 DJANGO_EOL_API_TERC_URL = env('DJANGO_EOL_API_TERC_URL')
+
+log = logging.getLogger(__name__)
 
 
 def aluno_existe(codigo_eol):
@@ -34,9 +37,12 @@ class EOLService(object):
 
     @classmethod
     def get_informacoes_responsavel(cls, codigo_eol):
+        log.info(f"Buscando informações do responsável do eol: {codigo_eol}")
         if aluno_existe(codigo_eol):
+            log.info("Informações do aluno já existente na base.")
             return AlunoService.get_aluno_serializer(codigo_eol)
         else:
+            log.info('Buscando informações na API EOL.')
             response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
                                     headers=cls.DEFAULT_HEADERS,
                                     timeout=cls.DEFAULT_TIMEOUT)
@@ -69,13 +75,13 @@ class EOLService(object):
             ]
             }
         """
-        print(cls.DEFAULT_HEADERS_TERC)
-        print(DJANGO_EOL_API_TERC_URL)
+        log.info(f"Buscando informações do usuário com RF: {registro_funcional}")
         response = requests.get(f'{DJANGO_EOL_API_TERC_URL}/cargos/{registro_funcional}',
                                 headers=cls.DEFAULT_HEADERS_TERC,
                                 timeout=cls.DEFAULT_TIMEOUT)
         if response.status_code == status.HTTP_200_OK:
             results = response.json()['results']
+            log.info(f"Dados usuário: {results}")
             if len(results) >= 1:
                 return results
             raise EOLException(f'Resultados para o RF: {registro_funcional} vazios')
