@@ -18,11 +18,11 @@ class Responsavel(ModeloBase):
     STATUS_PENDENCIA_RESOLVIDA = 'PENDENCIA_RESOLVIDA'
 
     STATUS_NOMES = {
-        STATUS_ATUALIZADO_EOL: 'Atualizado no EOL',
-        STATUS_ATUALIZADO_VALIDO: 'Atualizado e validado (Aguardando Envio EOL)',
-        STATUS_DIVERGENTE: 'Divergente',
-        STATUS_DESATUALIZADO: 'Desatualizado',
-        STATUS_PENDENCIA_RESOLVIDA: 'Pendência Resolvida na Escola',
+        STATUS_ATUALIZADO_EOL: 'Cadastro Atualizado no EOL',
+        STATUS_ATUALIZADO_VALIDO: 'Cadastro Atualizado e validado',
+        STATUS_DIVERGENTE: 'Cadastro Divergente',
+        STATUS_DESATUALIZADO: 'Cadastro Desatualizado',
+        STATUS_PENDENCIA_RESOLVIDA: 'Cadastro com Pendência Resolvida',
     }
 
     STATUS_CHOICES = (
@@ -90,7 +90,7 @@ class Responsavel(ModeloBase):
         enviar_email_confirmacao_pedido.delay(self.email, {'data_encerramento': 'xx/xx'})
 
     def __str__(self):
-        return f"{self.nome} - {self.email}"
+        return f"{self.nome} - Cod. EOL Aluno: {self.codigo_eol_aluno}"
 
     class Meta:
         verbose_name = "Responsavel"
