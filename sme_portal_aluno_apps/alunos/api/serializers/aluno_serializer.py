@@ -24,7 +24,7 @@ class AlunoLookUpSerializer(serializers.ModelSerializer):
         return obj.responsavel.nome
 
     def get_status(self, obj):
-        return obj.responsavel.status
+        return obj.responsavel.get_status_display()
 
     class Meta:
         model = Aluno

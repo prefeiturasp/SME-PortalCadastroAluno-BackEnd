@@ -46,7 +46,7 @@ class EOLService(object):
                     return results[0]
                 raise EOLException(f'Resultados para o código: {codigo_eol} vazios')
             else:
-                raise EOLException(f'API EOL com erro. Status: {response.status_code}')
+                raise EOLException(f'Código EOL não existe')
 
     @classmethod
     def registra_log(cls, codigo_eol, json):

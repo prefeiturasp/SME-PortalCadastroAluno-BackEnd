@@ -1,10 +1,10 @@
 from django.db.models import Q
 from rest_framework.response import Response
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 
 from ..serializers.aluno_serializer import (AlunoSerializer, AlunoLookUpSerializer, AlunoCreateSerializer)
-from ....eol_servico.utils import EOLService
+from ....eol_servico.utils import EOLService, EOLException
 from ...models.aluno import Aluno
 
 
@@ -42,6 +42,12 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return AlunoLookUpSerializer
         else:
             return AlunoCreateSerializer
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
+        except EOLException as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, codigo_eol=None, **kwargs):
         aluno = Aluno.objects.get(codigo_eol=codigo_eol)

@@ -19,7 +19,6 @@ class DadosResponsavelEOLViewSet(ViewSet):
             codigo_eol = request.data["codigo_eol"]
             dados = EOLService.get_informacoes_responsavel(codigo_eol)
             data_nascimento_request = datetime.datetime.strptime(request.data["data_nascimento"], "%Y-%m-%d")
-
             if aluno_existe(codigo_eol):
                 data_nascimento_banco = datetime.datetime.strptime(dados['data_nascimento'], "%Y-%m-%d")
                 if data_nascimento_request.date() == data_nascimento_banco.date():
@@ -27,7 +26,6 @@ class DadosResponsavelEOLViewSet(ViewSet):
                 else:
                     return Response({'detail': 'Data de nascimento invalida para o código eol informado'},
                                     status=status.HTTP_400_BAD_REQUEST)
-
             else:
                 data_nascimento_eol = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
                 if data_nascimento_request.date() == data_nascimento_eol.date():
@@ -43,6 +41,5 @@ class DadosResponsavelEOLViewSet(ViewSet):
                 else:
                     return Response({'detail': 'Data de nascimento invalida para o código eol informado'},
                                     status=status.HTTP_400_BAD_REQUEST)
-
         except EOLException as e:
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
