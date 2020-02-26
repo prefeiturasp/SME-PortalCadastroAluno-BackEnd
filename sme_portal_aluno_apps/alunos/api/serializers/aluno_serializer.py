@@ -1,9 +1,12 @@
+import logging
 from rest_framework.response import Response
 from rest_framework import serializers, status
 
 from ...models import Aluno, Responsavel
 from ...api.serializers.responsavel_serializer import ResponsavelSerializer
 from sme_portal_aluno_apps.eol_servico.utils import EOLService, EOLException
+
+log = logging.getLogger(__name__)
 
 
 class AlunoSerializer(serializers.ModelSerializer):
@@ -36,9 +39,11 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
     responsavel = ResponsavelSerializer()
 
     def create(self, validated_data):
+        log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
         try:
             informacoes_aluno = EOLService.get_informacoes_responsavel(validated_data['codigo_eol'])
         except EOLException as e:
+            log.info(f"Erro ao buscar informações do aluno: {e}")
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
         responsavel = validated_data.pop('responsavel')
@@ -57,6 +62,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                     validated_data['nome'] = informacoes_aluno['nome']
                     validated_data['codigo_escola'] = informacoes_aluno['codigo_escola']
                     validated_data['codigo_dre'] = informacoes_aluno['codigo_dre']
+                log.info(f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {resp.nome}")
         except Aluno.DoesNotExist:
             if EOLService.cpf_divergente(validated_data['codigo_eol'], responsavel['cpf']):
                 responsavel['status'] = 'DIVERGENTE'
@@ -65,13 +71,15 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 validated_data['codigo_escola'] = informacoes_aluno['cd_escola']
                 validated_data['codigo_dre'] = informacoes_aluno['cd_dre']
             resp, created = Responsavel.objects.update_or_create(**responsavel)
+            log.info(f"Aluno não existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {resp.nome}")
+
         codigo = validated_data.pop('codigo_eol')
         validated_data['responsavel'] = resp
         aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo,
                                                         defaults={
                                                             **validated_data
                                                         })
-
+        log.info("Aluno Criado.")
         resp.enviar_email_confirmacao()
         return aluno
 

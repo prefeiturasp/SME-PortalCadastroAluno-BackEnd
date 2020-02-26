@@ -1,9 +1,12 @@
+import logging
 from django.core import validators
 from django.db import models
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from ..tasks import enviar_email_confirmacao_pedido
 from .validators import phone_validation, cpf_validation
+
+log = logging.getLogger(__name__)
 
 
 class Responsavel(ModeloBase):
@@ -83,6 +86,7 @@ class Responsavel(ModeloBase):
     )
 
     def enviar_email_confirmacao(self):
+        log.debug(f'Enviando confirmação para email: {self.email}.')
         enviar_email_confirmacao_pedido.delay(self.email, {'data_encerramento': 'xx/xx'})
 
     def __str__(self):
