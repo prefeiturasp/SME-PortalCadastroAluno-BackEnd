@@ -27,7 +27,7 @@ class AlunoLookUpSerializer(serializers.ModelSerializer):
         return obj.responsavel.nome
 
     def get_status(self, obj):
-        return obj.responsavel.status
+        return obj.responsavel.get_status_display()
 
     class Meta:
         model = Aluno
@@ -60,6 +60,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, validated_data):
+        log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
         self.atualiza_payload(validated_data)
         responsavel = validated_data.pop('responsavel')
         cpf = responsavel.get('cpf', None)
@@ -70,12 +71,15 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
                 responsavel_criado, created = Responsavel.objects.update_or_create(
                     codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
+            log.info(f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
         except Aluno.DoesNotExist:
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
             responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
             validated_data['responsavel'] = responsavel_criado
+            log.info(f"Aluno criado. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
         codigo = validated_data.pop('codigo_eol')
         aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
+        log.info("Aluno Criado/Atualizado.")
         responsavel_criado.enviar_email_confirmacao()
         return aluno
 

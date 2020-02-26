@@ -86,7 +86,7 @@ class Responsavel(ModeloBase):
     )
 
     def enviar_email_confirmacao(self):
-        log.debug(f'Enviando confirmação para email: {self.email}.')
+        log.info(f'Enviando confirmação para email: {self.email}.')
         enviar_email_confirmacao_pedido.delay(self.email, {'data_encerramento': 'xx/xx'})
 
     def __str__(self):
