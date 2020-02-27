@@ -15,7 +15,8 @@ class PalavraBloqueada(object):
     @classmethod
     def importa_palavras_bloqueadas(cls):
         with open(f'{ROOT_DIR}/lista_palavras_bloqueadas.csv', 'r') as file:
-            lista_palavras = csv.reader(file, delimiter="'")
+            lista_palavras = csv.reader(file, delimiter="|")
+            next(lista_palavras)
             for palavra in lista_palavras:
-                palavra = palavra[0]
+                palavra = palavra[1]
                 cria_palavra_bloqueada(palavra)
