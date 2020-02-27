@@ -51,9 +51,9 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
     def atualiza_payload(self, validated_data):
         try:
             informacoes_aluno = EOLService.get_informacoes_responsavel(validated_data['codigo_eol'])
-            validated_data['nome'] = informacoes_aluno['nome']
-            validated_data['codigo_escola'] = informacoes_aluno['codigo_escola']
-            validated_data['codigo_dre'] = informacoes_aluno['codigo_dre']
+            validated_data['nome'] = informacoes_aluno.get('nome') or informacoes_aluno.get('nm_nome')
+            validated_data['codigo_escola'] = informacoes_aluno.get('codigo_escola') or informacoes_aluno.get('cd_escola')
+            validated_data['codigo_dre'] = informacoes_aluno.get('codigo_dre') or informacoes_aluno.get('cd_dre')
             return validated_data
         except EOLException as e:
             log.info(f"Erro ao buscar informações do aluno: {e}")
