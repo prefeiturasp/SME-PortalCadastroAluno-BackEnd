@@ -5,13 +5,7 @@ services:
     image: postgres:11.2-alpine
     container_name: aluno-postgres-local
     restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345qw
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: aluno
-      PGPASSWORD: 12345qw
+    env_file: .env
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     # ports:
@@ -28,8 +22,9 @@ services:
     container_name: alunos-backend
     build: .
     env_file: .env
+    command: "gunicorn config.wsgi:application --bind=0.0.0.0:8000 -w 8"
     ports:
-      - 8001:8000
+      - 8000:8000
     volumes:
       - ./staticfiles:/code/staticfiles
     depends_on:

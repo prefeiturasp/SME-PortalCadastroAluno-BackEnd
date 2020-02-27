@@ -9,7 +9,7 @@ from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework_swagger.views import get_swagger_view
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
-from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core
+from sme_portal_aluno_apps.core.api.urls import urlpatterns as url_core, router
 from sme_portal_aluno_apps.alunos.urls import urlpatterns as url_alunos
 from sme_portal_aluno_apps.users.urls import urlpatterns as url_users
 from des import urls as des_url
@@ -18,13 +18,15 @@ env = environ.Env()
 
 schema_view = get_swagger_view(title='API de Portal Uniformes', url=env.str('DJANGO_API_URL', default=''))
 
+path_name = "api"
+
 urlpatterns = [
-    path("docs/", schema_view, name='docs'),
+    path(f"{path_name}/docs/", schema_view, name='docs'),
     # Django Admin, use {% url 'admin:index' %}
-    path(settings.ADMIN_URL, admin.site.urls),
+    path(f"{path_name}/{settings.ADMIN_URL}", admin.site.urls),
     # User management
-    path("accounts/", include("allauth.urls")),
-    path("django-des/", include(des_url)),
+    path(f"{path_name}/accounts/", include("allauth.urls")),
+    path(f"{path_name}/django-des/", include(des_url)),
     # Your stuff: custom urls includes go here
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # API URLS
@@ -32,14 +34,15 @@ urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
     # DRF auth token
-    path("auth-token/", obtain_auth_token),
-    path('api-token-auth/', obtain_jwt_token),
-    path('api-token-refresh/', refresh_jwt_token),
+    path(f"{path_name}/auth-token/", obtain_auth_token),
+    path(f"{path_name}/api-token-auth/", obtain_jwt_token),
+    path(f"{path_name}/api-token-refresh/", refresh_jwt_token),
+    path(f"{path_name}/", include(router.urls))
 ]
 
-urlpatterns += url_core
-urlpatterns += url_alunos
-urlpatterns += url_users
+# urlpatterns += url_core
+# urlpatterns += url_alunos
+# urlpatterns += url_users
 
 if settings.DEBUG:
     # This allows the error pages to be debugged during development, just visit
