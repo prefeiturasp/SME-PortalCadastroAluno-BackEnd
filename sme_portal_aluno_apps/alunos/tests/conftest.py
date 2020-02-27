@@ -3,6 +3,17 @@ from model_bakery import baker
 
 
 @pytest.fixture
+def client_logado(client, django_user_model):
+    email = 'test@test.com'
+    password = 'bar'
+    username = '8888888'
+    django_user_model.objects.create_user(password=password, email=email,
+                                          username=username)
+    client.login(username=username, password=password)
+    return client
+
+
+@pytest.fixture
 def responsavel():
     return baker.make(
         'Responsavel',
@@ -64,17 +75,9 @@ def payload_alunos():
     ]
 
 
-@pytest.fixture
-def payload_responsavel(payload_alunos):
+def mocked_request_api_eol():
     return {
-        "alunos": payload_alunos,
-        "vinculo": "RESPONSAVEL_LEGAL",
-        "nome": "João Ninguém",
-        "cpf": "13381973720",
-        "email": "jn@gmail.com",
-        "ddd_celular": "27",
-        "celular": "998391003",
-        "data_nascimento": "1992-02-08",
-        "nome_mae": "Mãe Jão",
-        "status": "PENDENTE"
+        "nome": "YASMIN LEITE DOS SANTOS SIMOES",
+        "codigo_escola": "094277",
+        "codigo_dre": "108400",
     }
