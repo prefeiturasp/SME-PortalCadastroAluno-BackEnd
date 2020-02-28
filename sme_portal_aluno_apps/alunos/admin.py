@@ -26,7 +26,10 @@ class AlunoAdmin(admin.ModelAdmin):
     ultima_alteracao.short_description = 'Última alteração'
 
     def celular(self, obj):
-        return obj.responsavel.ddd_celular + ' ' + obj.responsavel.celular
+        if obj.responsavel.ddd_celular and obj.responsavel.celular:
+            return obj.responsavel.ddd_celular + ' ' + obj.responsavel.celular
+        else:
+            return f'Celular incompleto'
 
     def nome_responsavel(self, obj):
         return obj.responsavel.nome
