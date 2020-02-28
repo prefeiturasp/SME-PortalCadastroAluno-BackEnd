@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
@@ -49,8 +50,11 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, codigo_eol=None, **kwargs):
-        aluno = Aluno.objects.get(codigo_eol=codigo_eol)
-        data = AlunoSerializer(aluno).data
-        responsaveis = [data['responsaveis']]
-        data['responsaveis'] = responsaveis
-        return Response(data)
+        try:
+            aluno = Aluno.objects.get(codigo_eol=codigo_eol)
+            data = AlunoSerializer(aluno).data
+            responsaveis = [data['responsaveis']]
+            data['responsaveis'] = responsaveis
+            return Response(data)
+        except Aluno.DoesNotExist:
+            return Response({'detail': 'Aluno não encontrado'}, status=status.HTTP_400_BAD_REQUEST)
