@@ -60,11 +60,14 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, validated_data):
+        atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
+        if atualizado_na_escola:
+            user = self.context['request'].user
+            validated_data['servidor'] = user.username
         log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
         self.atualiza_payload(validated_data)
         responsavel = validated_data.pop('responsavel')
         cpf = responsavel.get('cpf', None)
-        atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
         try:
             obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             if obj_aluno:
