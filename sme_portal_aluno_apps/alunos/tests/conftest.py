@@ -17,6 +17,7 @@ def client_logado(client, django_user_model):
 def responsavel():
     return baker.make(
         'Responsavel',
+        codigo_eol_aluno='005294',
         nome='Fulano',
         vinculo=2,
         cpf='72641869977',

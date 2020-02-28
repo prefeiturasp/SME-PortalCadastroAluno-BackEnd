@@ -9,6 +9,7 @@ pytestmark = pytest.mark.django_db
 def test_instance_model(responsavel):
     model = responsavel
     assert isinstance(model, Responsavel)
+    assert model.codigo_eol_aluno
     assert model.nome
     assert model.vinculo
     assert model.cpf
@@ -25,7 +26,7 @@ def test_instance_model(responsavel):
 
 
 def test_srt_model(responsavel):
-    assert responsavel.__str__() == 'Fulano - teste@teste.com'
+    assert responsavel.__str__() == 'Fulano - Cod. EOL Aluno: 005294'
 
 
 def test_meta_modelo(responsavel):
