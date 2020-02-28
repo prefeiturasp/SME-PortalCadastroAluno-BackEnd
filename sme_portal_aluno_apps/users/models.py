@@ -18,6 +18,7 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
     cpf = CharField(_('CPF'), max_length=11, blank=True, null=True, unique=True,  # noqa DJ01
                     validators=[MinLengthValidator(11)])
     codigo_escola = CharField("Código EOL da Escola", max_length=10, blank=True, null=True)
+    nome_escola = CharField("Nome da Escola", max_length=100, blank=True, null=True)
     codigo_dre = CharField("Código EOL da DRE", max_length=10, blank=True, null=True)
 
     def get_absolute_url(self):
