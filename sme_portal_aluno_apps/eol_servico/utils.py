@@ -105,18 +105,21 @@ class EOLService(object):
     def cria_aluno_desatualizado(cls, codigo_eol):
         dados = cls.get_informacoes_responsavel(codigo_eol)
         cls.registra_log(codigo_eol, dados)
+        cpf = str(dados['responsaveis'][0]['cd_cpf_responsavel'])
+        if len(cpf) == 13:
+            cpf = cpf[:-2]
         data_nascimento = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
-
         responsavel = Responsavel.objects.create(
             vinculo=dados['responsaveis'][0]['tp_pessoa_responsavel'],
             codigo_eol_aluno=codigo_eol,
-            nome=dados['responsaveis'][0]['nm_responsavel'].strip(),
-            cpf=str(dados['responsaveis'][0]['cd_cpf_responsavel'])[:-2],
-            ddd_celular=dados['responsaveis'][0]['cd_ddd_celular_responsavel'].strip(),
+            nome=dados['responsaveis'][0]['nm_responsavel'].strip() if dados['responsaveis'][0][
+                'nm_responsavel'] else None,
+            cpf=cpf,
+            ddd_celular=dados['responsaveis'][0]['cd_ddd_celular_responsavel'].strip() if dados['responsaveis'][0][
+                'cd_ddd_celular_responsavel'] else None,
             celular=dados['responsaveis'][0]['nr_celular_responsavel'],
             status='DESATUALIZADO'
         )
-
         aluno = Aluno.objects.create(
             codigo_eol=codigo_eol,
             data_nascimento=data_nascimento,
