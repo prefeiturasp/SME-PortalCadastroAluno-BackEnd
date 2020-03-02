@@ -17,6 +17,7 @@ def client_logado(client, django_user_model):
 def responsavel():
     return baker.make(
         'Responsavel',
+        codigo_eol_aluno='3872240',
         nome='Fulano',
         vinculo=2,
         cpf='72641869977',
@@ -32,7 +33,7 @@ def responsavel():
 def aluno(responsavel):
     return baker.make(
         'Aluno',
-        codigo_eol='005294',
+        codigo_eol='3872240',
         data_nascimento='2010-06-12',
         nome='Rafael Aluno da Silva',
         codigo_escola='123456',
@@ -46,13 +47,13 @@ def aluno(responsavel):
 @pytest.fixture
 def payload():
     return {
-        "codigo_eol": "6541906",
-        "data_nascimento": "2014-05-12",
+        "codigo_eol": "3872240",
+        "data_nascimento": "2005-07-27",
         "nome": "João Junior",
         "codigo_escola": "123654",
         "codigo_dre": "741258",
         "responsavel": {
-            "codigo_eol_aluno": "6541906",
+            "codigo_eol_aluno": "3872240",
             "nm_responsavel": "João das Neves",
             "cd_cpf_responsavel": "12481973221",
             "cd_ddd_celular_responsavel": "27",

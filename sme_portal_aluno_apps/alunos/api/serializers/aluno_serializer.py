@@ -2,6 +2,7 @@ import logging
 from rest_framework.response import Response
 from rest_framework import serializers, status
 
+from .responsavel_serializer import ResponsavelSerializerComCPFEOL
 from ...models import Aluno, Responsavel
 from ...api.serializers.responsavel_serializer import ResponsavelSerializer
 from sme_portal_aluno_apps.eol_servico.utils import EOLService, EOLException
@@ -11,6 +12,16 @@ log = logging.getLogger(__name__)
 
 class AlunoSerializer(serializers.ModelSerializer):
     responsaveis = ResponsavelSerializer(source='responsavel')
+    codigo_eol = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Aluno
+        fields = ('uuid', 'codigo_eol', 'nome', 'data_nascimento', 'codigo_escola', 'codigo_dre',
+                  'criado_em', 'responsaveis')
+
+
+class AlunoSerializerComCPFEol(serializers.ModelSerializer):
+    responsaveis = ResponsavelSerializerComCPFEOL(source='responsavel')
     codigo_eol = serializers.CharField(read_only=True)
 
     class Meta:
@@ -60,11 +71,14 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, validated_data):
+        atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
+        if atualizado_na_escola:
+            user = self.context['request'].user
+            validated_data['servidor'] = user.username
         log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
         self.atualiza_payload(validated_data)
         responsavel = validated_data.pop('responsavel')
         cpf = responsavel.get('cpf', None)
-        atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
         try:
             obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             if obj_aluno:
@@ -80,7 +94,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         codigo = validated_data.pop('codigo_eol')
         aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
         log.info("Inicia envio de email.")
-        responsavel_criado.enviar_email_confirmacao()
+        responsavel_criado.enviar_email()
         log.info("Aluno Criado/Atualizado.")
         return aluno
 

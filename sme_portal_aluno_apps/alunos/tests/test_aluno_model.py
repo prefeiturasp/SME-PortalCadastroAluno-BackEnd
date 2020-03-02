@@ -19,7 +19,7 @@ def test_instance_model(aluno):
 
 
 def test_srt_model(aluno):
-    assert aluno.__str__() == '005294 - Rafael Aluno da Silva'
+    assert aluno.__str__() == '3872240 - Rafael Aluno da Silva'
 
 
 def test_meta_modelo(aluno):
