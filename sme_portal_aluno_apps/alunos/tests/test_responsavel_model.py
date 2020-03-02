@@ -26,7 +26,7 @@ def test_instance_model(responsavel):
 
 
 def test_srt_model(responsavel):
-    assert responsavel.__str__() == 'Fulano - Cod. EOL Aluno: 005294'
+    assert responsavel.__str__() == 'Fulano - Cod. EOL Aluno: 3872240'
 
 
 def test_meta_modelo(responsavel):

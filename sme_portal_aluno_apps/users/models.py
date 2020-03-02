@@ -3,7 +3,6 @@ from django.core.validators import MinLengthValidator
 from django.db.models import CharField
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.template.loader import render_to_string
 from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
 
 from ..core.helpers.enviar_email import enviar_email
