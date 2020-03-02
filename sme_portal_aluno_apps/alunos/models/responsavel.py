@@ -3,7 +3,7 @@ from django.core import validators
 from django.db import models
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
-from ..tasks import enviar_email_confirmacao_pedido
+from ..tasks import enviar_email_solicitacao_uniforme
 from .validators import phone_validation, cpf_validation
 
 log = logging.getLogger(__name__)
@@ -85,9 +85,17 @@ class Responsavel(ModeloBase):
         default=STATUS_ATUALIZADO_VALIDO
     )
 
-    def enviar_email_confirmacao(self):
-        log.info(f'Enviando confirmação para email: {self.email}.')
-        enviar_email_confirmacao_pedido.delay(self.email, {'data_encerramento': 'xx/xx'})
+    def enviar_email(self):
+        nome_aluno = self.alunos.nome
+        if self.status == 'DIVERGENTE':
+            log.info(f'Enviando email divergencia para: {self.email}.')
+            enviar_email_solicitacao_uniforme.delay(
+                'Divergência nos dados informados', 'email_divergencia_cpf', self.email, {'nome': nome_aluno, })
+        else:
+            log.info(f'Enviando email confirmação para: {self.email}.')
+            enviar_email_solicitacao_uniforme.delay(
+                'Obrigado por solicitar o uniforme escolar', 'email_confirmacao_pedido', self.email,
+                {'nome': nome_aluno, })
 
     def __str__(self):
         return f"{self.nome} - Cod. EOL Aluno: {self.codigo_eol_aluno}"

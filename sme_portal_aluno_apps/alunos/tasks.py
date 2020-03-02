@@ -14,10 +14,10 @@ env = environ.Env()
     retry_backoff=2,
     retry_kwargs={'max_retries': 8},
 )
-def enviar_email_confirmacao_pedido(email, contexto):
+def enviar_email_solicitacao_uniforme(assunto, template, email, contexto):
     return enviar_email_html(
-        'Obrigado por solicitar o uniforme escolar',
-        'email_confirmacao_pedido',
-        contexto,
-        email
+        assunto=assunto,
+        template=template,
+        contexto=contexto,
+        enviar_para=email
     )

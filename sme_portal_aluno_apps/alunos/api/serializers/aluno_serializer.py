@@ -94,7 +94,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         codigo = validated_data.pop('codigo_eol')
         aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
         log.info("Inicia envio de email.")
-        responsavel_criado.enviar_email_confirmacao()
+        responsavel_criado.enviar_email()
         log.info("Aluno Criado/Atualizado.")
         return aluno
 

@@ -23,11 +23,11 @@ def enviar_email(assunto, mensagem, enviar_para):
         logger.error(str(err))
 
 
-def enviar_email_html(assunto, template, data, enviar_para):
+def enviar_email_html(assunto, template, contexto, enviar_para):
     try:
         config = DynamicEmailConfiguration.get_solo()
 
-        msg_html = render_to_string(f"email/{template}.html", data)
+        msg_html = render_to_string(f"email/{template}.html", contexto)
 
         msg = EmailMessage(
             subject=assunto, body=msg_html,
