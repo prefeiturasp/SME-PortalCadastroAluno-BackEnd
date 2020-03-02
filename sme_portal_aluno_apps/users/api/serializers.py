@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         informacoes_usuario_json = self.get_informacoes_usuario(validated_data)
         cpf = informacoes_usuario_json[0]['cd_cpf_pessoa']
         assert cpf == validated_data['cpf'], 'CPF divergente'
-        email = f'{validated_data["email"]}'  # @sme.prefeitura.sp.gov.br'
+        email = f'{validated_data["email"]}@sme.prefeitura.sp.gov.br'
         usuario = User.objects.create_user(
             email=email,
             password=validated_data['password'],
