@@ -10,7 +10,7 @@ from ...users.urls import router as users_router
 
 router = routers.DefaultRouter()
 
-router.register('api/version', ApiVersion, basename='Version'),
+router.register('versao', ApiVersion, basename='Version'),
 router.register('palavras-bloqueadas', ListaPalavrasBloqueadasViewSet, basename='ListaPalavrasBloqueadasViewSet')
 
 # Adicione aqui as rotas das demais aplicações para que as urls sejam exibidas na API Root do DRF
