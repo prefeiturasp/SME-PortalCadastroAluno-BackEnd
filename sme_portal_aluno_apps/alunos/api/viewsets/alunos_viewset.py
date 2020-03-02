@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 
-from ..serializers.aluno_serializer import (AlunoSerializer, AlunoLookUpSerializer, AlunoCreateSerializer)
+from ..serializers.aluno_serializer import (AlunoSerializer, AlunoLookUpSerializer, AlunoCreateSerializer,
+                                            AlunoSerializerComCPFEol)
 from ....eol_servico.utils import EOLService, EOLException
 from ...models.aluno import Aluno
 
@@ -52,7 +53,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, codigo_eol=None, **kwargs):
         try:
             aluno = Aluno.objects.get(codigo_eol=codigo_eol)
-            data = AlunoSerializer(aluno).data
+            data = AlunoSerializerComCPFEol(aluno).data
             responsaveis = [data['responsaveis']]
             data['responsaveis'] = responsaveis
             return Response(data)

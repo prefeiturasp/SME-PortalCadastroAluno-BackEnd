@@ -55,26 +55,25 @@ class EOLService(object):
                 raise EOLException(f'Código EOL não existe')
 
     @classmethod
+    def get_cpf_eol_responsavel(cls, codigo_eol):
+        log.info(f"Buscando CPF do responsável do eol: {codigo_eol}")
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if len(results) == 1:
+                return results[0].get('responsaveis')[0].get('cd_cpf_responsavel')
+            raise EOLException(f'Resultados para o código: {codigo_eol} vazios')
+        else:
+            raise EOLException(f'Código EOL não existe')
+
+    @classmethod
     def registra_log(cls, codigo_eol, json):
         LogConsultaEOL.objects.create(codigo_eol=codigo_eol, json=json)
 
     @classmethod
     def get_informacoes_usuario(cls, registro_funcional):
-        """Retorna detalhes de vínculo de um RF.
-
-        mostra todos os vínculos desse RF. EX: fulano é diretor em AAAA e ciclano é professor em BBBB.
-            {
-        "results": [
-            {
-                "nm_pessoa": "XXXXXXXX",
-                "cd_cpf_pessoa": "000.000.000-00",
-                "cargo": "ANALISTA DE SAUDE NIVEL I",
-                "divisao": "NUCLEO DE SUPERVISAO DA ALIMENT ESCOLAR - CODAE-DINUTRE-NSAE",
-                "coord": null
-            }
-            ]
-            }
-        """
         log.info(f"Buscando informações do usuário com RF: {registro_funcional}")
         response = requests.get(f'{DJANGO_EOL_API_TERC_URL}/cargos/{registro_funcional}',
                                 headers=cls.DEFAULT_HEADERS_TERC,

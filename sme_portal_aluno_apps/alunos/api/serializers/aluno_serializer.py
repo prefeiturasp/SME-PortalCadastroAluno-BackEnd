@@ -2,6 +2,7 @@ import logging
 from rest_framework.response import Response
 from rest_framework import serializers, status
 
+from .responsavel_serializer import ResponsavelSerializerComCPFEOL
 from ...models import Aluno, Responsavel
 from ...api.serializers.responsavel_serializer import ResponsavelSerializer
 from sme_portal_aluno_apps.eol_servico.utils import EOLService, EOLException
@@ -11,6 +12,16 @@ log = logging.getLogger(__name__)
 
 class AlunoSerializer(serializers.ModelSerializer):
     responsaveis = ResponsavelSerializer(source='responsavel')
+    codigo_eol = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Aluno
+        fields = ('uuid', 'codigo_eol', 'nome', 'data_nascimento', 'codigo_escola', 'codigo_dre',
+                  'criado_em', 'responsaveis')
+
+
+class AlunoSerializerComCPFEol(serializers.ModelSerializer):
+    responsaveis = ResponsavelSerializerComCPFEOL(source='responsavel')
     codigo_eol = serializers.CharField(read_only=True)
 
     class Meta:
