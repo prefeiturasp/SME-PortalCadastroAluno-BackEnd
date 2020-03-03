@@ -4,12 +4,12 @@
 
 - Clone o repositório
 ```console
-git clone https://github.com/prefeiturasp/SME-PortalUniforme-BackEnd.git
+git clone https://github.com/prefeiturasp/SME-PortalCadastroAluno-BackEnd.git
 ```
 
 - Entre no diretório criado
 ```console
-cd SME-PortalUniforme-BackEnd
+cd SME-PortalCadastroAluno-BackEnd
 ```
 
 - Configure a instância com o .env
@@ -31,19 +31,3 @@ make create_superuser_docker
 ```console
 http://localhost:8000
 ```
-
-### Criando um token para ter acesso a aplicação 
-
-Após a realização do passo anterior um container com o backend
-está executando, então siga os passos abaixo.
-
-- Acesse a aplicação usando o browse
-```console
-http://localhost:8000/admin
-``` 
-Digite login e senha do super usuário criado na etapa anterior e assim terá acesso ao admin.
-No menu em ```TOKEN DE AUTENTICAÇÃO``` clique em adicionar.
-Então selecione o usuário criado anteriormente e clique em salvar.
- 
-Para requisição na API com rotas ```IsAuthenticated``` é necessário enviar o token
-no header.
