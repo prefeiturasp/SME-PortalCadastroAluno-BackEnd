@@ -86,7 +86,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
         except Aluno.DoesNotExist:
             return Response({'detail': 'Aluno não encontrado'}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['GET'], url_path='dashbord')
+    @action(detail=False, methods=['GET'], url_path='dashboard')
     def dashboard(self, request):
         query_set = self.get_queryset_dashboard()
         response = {'results': self.dados_dashboard(query_set=query_set)}
