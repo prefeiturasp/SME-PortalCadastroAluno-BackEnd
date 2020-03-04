@@ -15,25 +15,22 @@ class AlunosViewSet(viewsets.ModelViewSet):
     queryset = Aluno.objects.all()
     serializer_class = AlunoSerializer
 
-    def dashboard_escola(self, query_set: list) -> dict:
-
+    def dados_dashboard(self, query_set: list) -> dict:
+        alunos_online = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=False).count()
+        alunos_escola = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=True).count()
+        desatualizados = query_set.filter(responsavel__status='DESATUALIZADO').count()
+        pendencia_resolvida = query_set.filter(responsavel__status='PENDENCIA_RESOLVIDA').count()
+        divergente = query_set.filter(responsavel__status='DIVERGENTE').count()
         sumario = {
             'Cadastros Validados': {
-                'alunos online': 0,
-                'alunos escola': 0,
-                'total': 0,
+                'alunos online': alunos_online,
+                'alunos escola': alunos_escola,
+                'total': alunos_online + alunos_escola,
             },
-            'Cadastros desatualizados': 0,
-            'Cadastros com pendências resolvidas': 0,
-            'Cadastros divergentes': 0,
+            'Cadastros desatualizados': desatualizados,
+            'Cadastros com pendências resolvidas': pendencia_resolvida,
+            'Cadastros divergentes': divergente,
         }
-        for aluno in query_set:
-            if aluno.status == 'validado':
-                if aluno.atualizado_na_escola:
-                    sumario['cadastros validados']['alunos online'] += 1
-                else:
-                    sumario['cadastros validados']['alunos escola'] += 1
-                sumario['cadastros validados']['total'] += 1
 
         return sumario
 
@@ -60,6 +57,13 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
         return queryset.order_by('nome')
 
+    def get_queryset_dashboard(self):
+        query_set = Aluno.objects.all()
+        user = self.request.user
+        if user.codigo_escola:
+            queryset = query_set.filter(codigo_escola=user.codigo_escola)
+        return query_set
+
     def get_serializer_class(self):
         if self.action == 'list':
             return AlunoLookUpSerializer
@@ -84,6 +88,6 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'], url_path='dashbord')
     def dashboard(self, request):
-        query_set = Aluno.objects.all()
-        response = {'results': self.dashboard_escola(query_set=query_set)}
+        query_set = self.get_queryset_dashboard()
+        response = {'results': self.dados_dashboard(query_set=query_set)}
         return Response(response)
