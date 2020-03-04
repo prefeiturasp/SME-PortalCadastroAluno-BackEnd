@@ -30,6 +30,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
             'Cadastros desatualizados': desatualizados,
             'Cadastros com pendências resolvidas': pendencia_resolvida,
             'Cadastros divergentes': divergente,
+            'total alunos': query_set.count(),
         }
 
         return sumario
