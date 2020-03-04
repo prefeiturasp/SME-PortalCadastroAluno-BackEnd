@@ -61,7 +61,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
         query_set = Aluno.objects.all()
         user = self.request.user
         if user.codigo_escola:
-            queryset = query_set.filter(codigo_escola=user.codigo_escola)
+            query_set = query_set.filter(codigo_escola=user.codigo_escola)
         return query_set
 
     def get_serializer_class(self):
