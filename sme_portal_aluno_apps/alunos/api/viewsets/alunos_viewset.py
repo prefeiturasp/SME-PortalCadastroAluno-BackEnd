@@ -7,6 +7,7 @@ from ..serializers.aluno_serializer import (AlunoSerializer, AlunoLookUpSerializ
                                             AlunoSerializerComCPFEol)
 from ....eol_servico.utils import EOLService, EOLException
 from ...models.aluno import Aluno
+from ...models.responsavel import Responsavel
 
 
 class AlunosViewSet(viewsets.ModelViewSet):
@@ -41,6 +42,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
         codigo_eol = self.request.query_params.get('codigo_eol', None)
         nome_estudante = self.request.query_params.get('nome_estudante', None)
         nome_responsavel = self.request.query_params.get('nome_responsavel', None)
+        status_responsavel = self.request.query_params.get('status', None)
 
         if codigo_eol:
             queryset = queryset.filter(codigo_eol=codigo_eol)
@@ -55,6 +57,10 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
         if nome_responsavel:
             queryset = queryset.filter(responsavel__nome=nome_responsavel)
+
+        if status_responsavel:
+            status_reverse = dict((v, k) for k, v in Responsavel.STATUS_CHOICES)
+            queryset = queryset.filter(responsavel__status=status_reverse[status_responsavel])
 
         return queryset.order_by('nome')
 
