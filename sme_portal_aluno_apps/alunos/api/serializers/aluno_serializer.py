@@ -1,4 +1,6 @@
 import logging
+
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import serializers, status
 
@@ -72,19 +74,20 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
+        user = self.context['request'].user
         if atualizado_na_escola:
-            user = self.context['request'].user
             validated_data['servidor'] = user.username
         log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
         self.atualiza_payload(validated_data)
         responsavel = validated_data.pop('responsavel')
         cpf = responsavel.get('cpf', None)
         try:
-            obj_aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-            if obj_aluno:
-                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
-                responsavel_criado, created = Responsavel.objects.update_or_create(
-                    codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
+            aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+            if aluno_obj.atualizado_na_escola and not user.codigo_escola:
+                raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
+            responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+            responsavel_criado, created = Responsavel.objects.update_or_create(
+                codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
             log.info(f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
         except Aluno.DoesNotExist:
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
