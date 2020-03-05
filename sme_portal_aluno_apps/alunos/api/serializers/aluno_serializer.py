@@ -55,7 +55,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         elif EOLService.cpf_divergente(codigo_eol, cpf):
             return 'DIVERGENTE'
         elif atualizado_na_escola:
-            return 'PENDENCIA_RESOLVIDA'
+            return 'ATUALIZADO_VALIDO'
         else:
             return 'ATUALIZADO_VALIDO'
 
