@@ -26,10 +26,11 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
     def enviar_email_confirmacao(self):
         self.add_email_if_not_exists(self.email)
         content = {'uuid': self.uuid, 'confirmation_key': self.confirmation_key}
-        conteudo = (f'Clique neste link para confirmar seu e-mail no Pedido de Uniformes: ' +
+        conteudo = (f'Para confirmar seu e-mail e ativar seu cadastro no ambiente administrativo do Portal do ' +
+                    f'Uniforme, clique neste link: ' +
                     f'{url_configs("CONFIRMAR_EMAIL", content)}')
         enviar_email(
-            assunto='Confirme seu e-mail - Pedido de Uniformes',
+            assunto='Confirme seu e-mail - Ambiente administrativo do Portal do Uniforme',
             mensagem=conteudo,
             enviar_para=self.email
         )
