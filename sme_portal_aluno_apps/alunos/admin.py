@@ -61,10 +61,18 @@ class ResponsavelAdmin(admin.ModelAdmin):
     def celular(self, obj):
         return obj.ddd_celular + ' ' + obj.celular
 
+    def enviar_emails(self, request, queryset):
+        for responsavel in queryset.all():
+            responsavel.enviar_email()
+        self.message_user(request, 'E-mails enviados com sucesso.')
+
+    enviar_emails.short_description = 'Enviar email para responsaveis'
+
     list_display = ('nome', 'cpf', 'data_nascimento', 'vinculo', 'nome_mae', 'celular', 'email', 'status')
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome')
     list_filter = ('status',)
+    actions = ['enviar_emails', ]
 
 
 @admin.register(LogConsultaEOL)
