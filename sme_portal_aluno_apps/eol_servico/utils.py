@@ -8,6 +8,7 @@ from rest_framework import status
 from ..alunos.models import Aluno, Responsavel
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
 from ..alunos.api.services.aluno_service import AlunoService
+from .helpers import ajusta_cpf
 
 env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
@@ -63,7 +64,7 @@ class EOLService(object):
         if response.status_code == status.HTTP_200_OK:
             results = response.json()['results']
             if len(results) == 1:
-                return results[0].get('responsaveis')[0].get('cd_cpf_responsavel')
+                return ajusta_cpf(results[0].get('responsaveis')[0].get('cd_cpf_responsavel'))
             raise EOLException(f'Resultados para o código: {codigo_eol} vazios')
         else:
             raise EOLException(f'Código EOL não existe')
@@ -93,20 +94,16 @@ class EOLService(object):
                                 headers=cls.DEFAULT_HEADERS,
                                 timeout=cls.DEFAULT_TIMEOUT)
         if response.status_code == status.HTTP_200_OK:
-            cpf_eol = ''
             results = response.json()['results']
             if results and results[0]['responsaveis']:
-                cpf_eol_api = results[0]['responsaveis'][0].pop('cd_cpf_responsavel')
-                cpf_eol = str(cpf_eol_api)[:-2]
+                cpf_eol = ajusta_cpf(results[0]['responsaveis'][0].pop('cd_cpf_responsavel'))
             return cpf != cpf_eol
 
     @classmethod
     def cria_aluno_desatualizado(cls, codigo_eol):
         dados = cls.get_informacoes_responsavel(codigo_eol)
         cls.registra_log(codigo_eol, dados)
-        cpf = str(dados['responsaveis'][0]['cd_cpf_responsavel'])
-        if len(cpf) == 13:
-            cpf = cpf[:-2]
+        cpf = ajusta_cpf(dados['responsaveis'][0]['cd_cpf_responsavel'])
         data_nascimento = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
         responsavel = Responsavel.objects.create(
             vinculo=dados['responsaveis'][0]['tp_pessoa_responsavel'],
