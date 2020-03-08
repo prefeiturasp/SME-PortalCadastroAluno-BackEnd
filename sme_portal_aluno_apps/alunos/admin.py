@@ -69,7 +69,8 @@ class ResponsavelAdmin(admin.ModelAdmin):
 
     enviar_emails.short_description = 'Enviar email para responsaveis'
 
-    list_display = ('nome', 'cpf', 'codigo_eol_aluno', 'data_nascimento', 'vinculo', 'nome_mae', 'get_celular', 'email', 'status')
+    list_display = ('nome', 'cpf', 'codigo_eol_aluno', 'data_nascimento', 'vinculo', 'nome_mae', 'get_celular', 'email',
+                    'status')
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome')
     list_filter = ('status',)

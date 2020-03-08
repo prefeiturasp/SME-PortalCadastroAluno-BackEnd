@@ -33,7 +33,6 @@ def export_as_xls(self, request, queryset):
     opts = self.model._meta
     field_names = self.list_display
     file_name = unidecode(opts.verbose_name)
-    blank_line = []
     wb = Workbook()
     ws = wb.active
     ws.append(ExportExcelAction.generate_header(self, self.model, field_names))
