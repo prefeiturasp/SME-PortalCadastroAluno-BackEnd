@@ -5,6 +5,7 @@ from django.contrib import admin
 
 from .models import (Aluno, Responsavel, LogConsultaEOL)
 from .forms import LogConsultaEOLForm
+from ..utils.actions import export_as_xls
 
 
 class AlunoInLine(admin.StackedInline):
@@ -58,7 +59,7 @@ class ResponsavelAdmin(admin.ModelAdmin):
     ultima_alteracao.admin_order_field = 'alterado_em'
     ultima_alteracao.short_description = 'Última alteração'
 
-    def celular(self, obj):
+    def get_celular(self, obj):
         return obj.ddd_celular + ' ' + obj.celular
 
     def enviar_emails(self, request, queryset):
@@ -68,11 +69,12 @@ class ResponsavelAdmin(admin.ModelAdmin):
 
     enviar_emails.short_description = 'Enviar email para responsaveis'
 
-    list_display = ('nome', 'cpf', 'codigo_eol_aluno', 'data_nascimento', 'vinculo', 'nome_mae', 'celular', 'email', 'status')
+    list_display = ('nome', 'cpf', 'codigo_eol_aluno', 'data_nascimento', 'vinculo', 'nome_mae', 'get_celular', 'email',
+                    'status')
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome')
     list_filter = ('status',)
-    actions = ['enviar_emails', ]
+    actions = ['enviar_emails', export_as_xls]
 
 
 @admin.register(LogConsultaEOL)
