@@ -26,3 +26,7 @@ djangorestframework-jwt==1.11.0  # https://getblimp.github.io/django-rest-framew
 djangorestframework==3.11.0  # https://github.com/encode/django-rest-framework
 coreapi==2.3.3  # https://github.com/core-api/python-client
 django-filter==2.2.0
+
+#export as excel
+openpyxl==3.0.3
+Unidecode==1.1.1
