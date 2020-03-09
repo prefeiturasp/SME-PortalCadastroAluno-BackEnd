@@ -80,7 +80,14 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
+            status = request.query_params.get('status')
+            if not status or status != 'Cadastro Desatualizado':
+                return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
+            else:
+                cod_eol_escola = request.user.codigo_escola
+                response = EOLService.get_alunos_escola(cod_eol_escola)
+                return Response(response)
+                pass
         except EOLException as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
