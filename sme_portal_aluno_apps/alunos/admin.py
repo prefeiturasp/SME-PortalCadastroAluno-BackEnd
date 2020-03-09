@@ -1,6 +1,5 @@
 from django.contrib.postgres import fields
 from django_json_widget.widgets import JSONEditorWidget
-
 from django.contrib import admin
 
 from .models import (Aluno, Responsavel, LogConsultaEOL)
@@ -72,10 +71,17 @@ class ResponsavelAdmin(admin.ModelAdmin):
 
     enviar_emails.short_description = 'Enviar email para responsaveis'
 
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if not request.user.is_superuser:
+            if 'enviar_emails' in actions:
+                del actions['enviar_emails']
+        return actions
+
     list_display = ('nome', 'cpf', 'codigo_eol_aluno', 'data_nascimento', 'vinculo', 'nome_mae', 'get_celular', 'email',
-                    'status')
+                    'status', 'criado_em')
     ordering = ('-alterado_em',)
-    search_fields = ('uuid', 'cpf', 'nome')
+    search_fields = ('uuid', 'cpf', 'nome', 'codigo_eol_aluno')
     list_filter = ('status',)
     actions = ['enviar_emails', export_as_xls]
 
