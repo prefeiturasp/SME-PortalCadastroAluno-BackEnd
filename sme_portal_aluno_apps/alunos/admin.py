@@ -30,7 +30,7 @@ class AlunoAdmin(admin.ModelAdmin):
         if obj.responsavel.ddd_celular and obj.responsavel.celular:
             return obj.responsavel.ddd_celular + ' ' + obj.responsavel.celular
         else:
-            return f'Celular incompleto'
+            return '-'
 
     def nome_responsavel(self, obj):
         return obj.responsavel.nome
@@ -60,7 +60,10 @@ class ResponsavelAdmin(admin.ModelAdmin):
     ultima_alteracao.short_description = 'Última alteração'
 
     def get_celular(self, obj):
-        return obj.ddd_celular + ' ' + obj.celular
+        if obj.ddd_celular and obj.celular:
+            return obj.ddd_celular + ' ' + obj.celular
+        else:
+            return '-'
 
     def enviar_emails(self, request, queryset):
         for responsavel in queryset.all():
