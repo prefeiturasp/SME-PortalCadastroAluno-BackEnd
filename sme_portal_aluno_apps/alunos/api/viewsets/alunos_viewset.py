@@ -1,3 +1,4 @@
+from requests import ReadTimeout
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status
@@ -82,6 +83,14 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
         except EOLException as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super(AlunosViewSet, self).create(request, *args, **kwargs)
+        except EOLException as e:
+            return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+        except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, codigo_eol=None, **kwargs):
         try:
