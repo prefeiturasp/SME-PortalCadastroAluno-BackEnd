@@ -90,6 +90,7 @@ class EOLService(object):
 
     @classmethod
     def cpf_divergente(cls, codigo_eol, cpf):
+        cpf_eol = ''
         response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
                                 headers=cls.DEFAULT_HEADERS,
                                 timeout=cls.DEFAULT_TIMEOUT)
