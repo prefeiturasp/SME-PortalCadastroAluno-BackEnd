@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
 
+from ..alunos.models import Aluno
 from ..core.helpers.enviar_email import enviar_email
 from ..core.models_abstracts import TemChaveExterna
 from ..core.utils import url_configs
@@ -34,3 +35,11 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
             mensagem=conteudo,
             enviar_para=self.email
         )
+
+    def get_alunos_nao_desatualizados(self):
+        lista_codigo_eol = list(
+            Aluno.objects.filter(
+                codigo_escola=self.codigo_escola
+            ).exclude(responsavel__status='DESATUALIZADO').values('codigo_eol')
+        )
+        return [int(aluno['codigo_eol']) for aluno in lista_codigo_eol]

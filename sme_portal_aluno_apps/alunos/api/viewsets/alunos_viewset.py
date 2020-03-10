@@ -17,10 +17,10 @@ class AlunosViewSet(viewsets.ModelViewSet):
     queryset = Aluno.objects.all()
     serializer_class = AlunoSerializer
 
-    def dados_dashboard(self, query_set: list) -> dict:
+    def dados_dashboard(self, query_set: list, quantidade_desatualizados: int) -> dict:
         alunos_online = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=False).count()
         alunos_escola = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=True).count()
-        desatualizados = query_set.filter(responsavel__status='DESATUALIZADO').count()
+        desatualizados = quantidade_desatualizados
         pendencia_resolvida = query_set.filter(responsavel__status='PENDENCIA_RESOLVIDA').count()
         divergente = query_set.filter(responsavel__status='DIVERGENTE').count()
         sumario = {
@@ -86,7 +86,9 @@ class AlunosViewSet(viewsets.ModelViewSet):
             else:
                 cod_eol_escola = request.user.codigo_escola
                 response = EOLService.get_alunos_escola(cod_eol_escola)
-                return Response(response)
+                lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
+                alunos = [aluno for aluno in response if aluno['cd_aluno'] not in lista_codigo_eol]
+                return Response(alunos)
                 pass
         except EOLException as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -111,6 +113,12 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'], url_path='dashboard')
     def dashboard(self, request):
+        cod_eol_escola = request.user.codigo_escola
+        response = EOLService.get_alunos_escola(cod_eol_escola)
+        lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
+        quantidade_desatualizados = len(response) - len(lista_codigo_eol)
         query_set = self.get_queryset_dashboard()
-        response = {'results': self.dados_dashboard(query_set=query_set)}
+        response = {'results': self.dados_dashboard(
+            query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
+        )}
         return Response(response)
