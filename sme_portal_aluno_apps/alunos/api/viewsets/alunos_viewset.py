@@ -32,7 +32,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
             'Cadastros desatualizados': desatualizados,
             'Cadastros com pendências resolvidas': pendencia_resolvida,
             'Cadastros divergentes': divergente,
-            'total alunos': query_set.count(),
+            'total alunos': query_set.count() + quantidade_desatualizados,
         }
 
         return sumario
@@ -80,8 +80,8 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            status = request.query_params.get('status')
-            if not status or status != 'Cadastro Desatualizado':
+            status_ = request.query_params.get('status')
+            if not status_ or status_ != 'Cadastro Desatualizado':
                 return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
             else:
                 cod_eol_escola = request.user.codigo_escola
@@ -110,6 +110,10 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return Response(data)
         except Aluno.DoesNotExist:
             return Response({'detail': 'Aluno não encontrado'}, status=status.HTTP_400_BAD_REQUEST)
+        except EOLException as e:
+            return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+        except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['GET'], url_path='dashboard')
     def dashboard(self, request):
