@@ -1,0 +1,40 @@
+version: '3.1'
+services:
+
+  db:
+    image: postgres:11.2-alpine
+    container_name: aluno-postgres-local
+    restart: always
+    env_file: .env
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    # ports:
+    #   - 5433:5432
+
+  redis:
+    image: redis:5.0.0-alpine
+    container_name: aluno-redis-local
+    restart: always
+    # ports:
+    #   - "6379:6379"
+
+  backend:
+    container_name: alunos-backend
+    build: .
+    env_file: .env
+    command: "gunicorn config.wsgi:application --bind=0.0.0.0:8000 -w 8"
+    ports:
+      - 8000:8000
+    volumes:
+      - ./staticfiles:/code/staticfiles
+    depends_on:
+      - db
+      - redis
+    links:
+      - db:db
+
+networks:
+  default:
+    external:
+      name: aluno-network
+
