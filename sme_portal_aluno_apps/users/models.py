@@ -8,6 +8,7 @@ from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
 from ..core.helpers.enviar_email import enviar_email
 from ..core.models_abstracts import TemChaveExterna
 from ..core.utils import url_configs
+from ..core.constants import CODIGOS_DRES
 
 
 class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
@@ -34,3 +35,14 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
             mensagem=conteudo,
             enviar_para=self.email
         )
+
+    @property
+    def perfil_usuario(self):
+        if not self.codigo_escola or not self.codigo_dre:
+            return "perfil_indisponivel"
+        elif self.codigo_escola != self.codigo_dre:
+            return 'perfil_escola'
+        elif self.codigo_dre in CODIGOS_DRES:
+            return 'perfil_dre'
+        else:
+            return 'perfil_sme'
