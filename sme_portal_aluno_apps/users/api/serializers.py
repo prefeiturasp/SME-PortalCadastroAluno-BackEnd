@@ -5,6 +5,8 @@ from sme_portal_aluno_apps.users.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+    perfil_usuario = serializers.ReadOnlyField()
+
     def get_informacoes_usuario(self, validated_data):
         return EOLService.get_informacoes_usuario(validated_data['username'])
 
@@ -29,4 +31,4 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("username", "email", "name", "cpf", "nome_escola")
+        fields = ("username", "email", "name", "cpf", "nome_escola", 'perfil_usuario')
