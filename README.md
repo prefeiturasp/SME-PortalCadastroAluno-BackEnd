@@ -10,7 +10,7 @@ Versão: 1.0.0
 
 ## Release Notes
 
-### 1.0.0 - 10/03/2020 - Sprint 1
+### 1.0.0 - 09/03/2020 - Sprint 1
 * Entrada do sistema em produção
 
 ## Executar o projeto com docker
