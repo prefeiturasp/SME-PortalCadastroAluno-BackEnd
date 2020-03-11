@@ -2,6 +2,7 @@ import datetime
 
 from sme_portal_aluno_apps.alunos.models import Responsavel
 from sme_portal_aluno_apps.alunos.tasks import enviar_email_simples
+from sme_portal_aluno_apps.users.models import User
 
 
 def enviar_email_campo_confuso():
@@ -24,3 +25,9 @@ def enviar_email_campo_confuso():
             mensagem=conteudo,
             enviar_para=email
         )
+
+
+def enviar_email_usuarios_inativos():
+    usuarios = User.objects.filter(is_active=False)
+    for usuario in usuarios:
+        usuario.enviar_email_confirmacao()

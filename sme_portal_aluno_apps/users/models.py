@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
 
+from ..alunos.tasks import enviar_email_simples
 from ..core.helpers.enviar_email import enviar_email
 from ..core.models_abstracts import TemChaveExterna
 from ..core.utils import url_configs
@@ -29,7 +30,7 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
         conteudo = (f'Para confirmar seu e-mail e ativar seu cadastro no ambiente administrativo do Portal do ' +
                     f'Uniforme, clique neste link: ' +
                     f'{url_configs("CONFIRMAR_EMAIL", content)}')
-        enviar_email(
+        enviar_email_simples.delay(
             assunto='Confirme seu e-mail - Ambiente administrativo do Portal do Uniforme',
             mensagem=conteudo,
             enviar_para=self.email
