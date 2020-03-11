@@ -15,12 +15,15 @@ env = environ.Env()
 def enviar_email(assunto, mensagem, enviar_para):
     try:
         config = DynamicEmailConfiguration.get_solo()
+        email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=mensagem)
         send_mail(
             subject=assunto,
             message=mensagem,
             from_email=config.from_email or None,
             recipient_list=[enviar_para]
         )
+        email_sme.enviado = True
+        email_sme.save()
     except Exception as err:
         logger.error(str(err))
 
