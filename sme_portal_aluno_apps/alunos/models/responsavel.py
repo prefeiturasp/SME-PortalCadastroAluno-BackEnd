@@ -90,12 +90,13 @@ class Responsavel(ModeloBase):
         if self.status == 'DIVERGENTE':
             log.info(f'Enviando email divergencia para: {self.email}.')
             enviar_email_solicitacao_uniforme.delay(
-                'Divergência nos dados informados', 'email_divergencia_cpf', self.email, {'nome': nome_aluno, })
+                'Divergência nos dados informados', 'email_divergencia_cpf', self.email, {'nome': nome_aluno,
+                                                                                          'id': self.id})
         else:
             log.info(f'Enviando email confirmação para: {self.email}.')
             enviar_email_solicitacao_uniforme.delay(
                 'Obrigado por solicitar o uniforme escolar', 'email_confirmacao_pedido', self.email,
-                {'nome': nome_aluno, })
+                {'nome': nome_aluno, 'id': self.id})
 
     def __str__(self):
         return f"{self.nome} - Cod. EOL Aluno: {self.codigo_eol_aluno}"
