@@ -5,6 +5,8 @@ from des.models import DynamicEmailConfiguration
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
 
+from sme_portal_aluno_apps.core.models import Email
+
 logger = logging.getLogger(__name__)
 
 env = environ.Env()
@@ -13,12 +15,15 @@ env = environ.Env()
 def enviar_email(assunto, mensagem, enviar_para):
     try:
         config = DynamicEmailConfiguration.get_solo()
+        email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=mensagem)
         send_mail(
             subject=assunto,
             message=mensagem,
             from_email=config.from_email or None,
             recipient_list=[enviar_para]
         )
+        email_sme.enviado = True
+        email_sme.save()
     except Exception as err:
         logger.error(str(err))
 
@@ -35,8 +40,10 @@ def enviar_email_html(assunto, template, contexto, enviar_para):
             bcc=(enviar_para,),
         )
         msg.content_subtype = "html"  # Main content is now text/html
-
+        email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=msg_html)
         msg.send()
+        email_sme.enviado = True
+        email_sme.save()
 
     except Exception as err:
         logger.error(str(err))

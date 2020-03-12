@@ -4,7 +4,7 @@ from smtplib import SMTPServerDisconnected
 import environ
 from celery import shared_task
 
-from ..core.helpers.enviar_email import enviar_email_html
+from ..core.helpers.enviar_email import enviar_email_html, enviar_email
 
 env = environ.Env()
 log = logging.getLogger(__name__)
@@ -23,4 +23,18 @@ def enviar_email_solicitacao_uniforme(assunto, template, email, contexto):
         template=template,
         contexto=contexto,
         enviar_para=email
+    )
+
+
+@shared_task(
+    autoretry_for=(SMTPServerDisconnected,),
+    retry_backoff=2,
+    retry_kwargs={'max_retries': 8},
+)
+def enviar_email_simples(assunto, mensagem, enviar_para):
+    log.info(f'Enviando email solicitação para: {enviar_para}.')
+    enviar_email(
+        assunto=assunto,
+        mensagem=mensagem,
+        enviar_para=enviar_para
     )
