@@ -9,6 +9,7 @@ from ..alunos.models import Aluno
 from ..alunos.tasks import enviar_email_simples
 from ..core.models_abstracts import TemChaveExterna
 from ..core.utils import url_configs
+from ..core.constants import CODIGOS_DRES
 
 
 class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
@@ -43,3 +44,14 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
             ).exclude(responsavel__status='DESATUALIZADO').values('codigo_eol')
         )
         return [int(aluno['codigo_eol']) for aluno in lista_codigo_eol]
+
+    @property
+    def perfil_usuario(self):
+        if not self.codigo_escola or not self.codigo_dre:
+            return "perfil_indisponivel"
+        elif self.codigo_escola != self.codigo_dre:
+            return 'perfil_escola'
+        elif self.codigo_dre in CODIGOS_DRES:
+            return 'perfil_dre'
+        else:
+            return 'perfil_sme'

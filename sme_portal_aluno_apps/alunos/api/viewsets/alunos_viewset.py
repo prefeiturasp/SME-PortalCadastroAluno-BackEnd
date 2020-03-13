@@ -68,7 +68,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
     def get_queryset_dashboard(self):
         query_set = Aluno.objects.all()
         user = self.request.user
-        if user.codigo_escola:
+        if user.perfil_usuario == 'perfil_escola':
             query_set = query_set.filter(codigo_escola=user.codigo_escola)
         return query_set
 
