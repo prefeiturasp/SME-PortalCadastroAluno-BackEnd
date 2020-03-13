@@ -70,9 +70,13 @@ class Responsavel(ModeloBase):
         "E-mail", max_length=255, validators=[validators.EmailValidator()], blank=True, null=True
     )
 
+    nao_possui_email = models.BooleanField(default=False)
+
     ddd_celular = models.CharField("DDD Celular", max_length=4, blank=True, null=True)
 
     celular = models.CharField("Número Celular", validators=[phone_validation], max_length=9, blank=True, null=True)
+
+    nao_possui_celular = models.BooleanField(default=False)
 
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
 
