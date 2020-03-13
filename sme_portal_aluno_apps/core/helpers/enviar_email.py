@@ -6,17 +6,11 @@ from django.core.mail import send_mail, EmailMessage
 from django.core.mail.backends.smtp import EmailBackend
 from django.template.loader import render_to_string
 
-from sme_portal_aluno_apps.core.models import Email
+from sme_portal_aluno_apps.core.models import Email, ListaEmail
 
 logger = logging.getLogger(__name__)
 
 env = environ.Env()
-
-EMAILS = ['nao-responda5@sme.prefeitura.sp.gov.br', 'nao-responda6@sme.prefeitura.sp.gov.br',
-          'nao-responda7@sme.prefeitura.sp.gov.br', 'nao-responda8@sme.prefeitura.sp.gov.br',
-          'nao-responda9@sme.prefeitura.sp.gov.br', 'nao-responda10@sme.prefeitura.sp.gov.br',
-          'nao-responda11@sme.prefeitura.sp.gov.br', 'nao-responda12@sme.prefeitura.sp.gov.br',
-          'nao-responda13@sme.prefeitura.sp.gov.br']
 
 
 def enviar_email(assunto, mensagem, enviar_para):
@@ -40,7 +34,8 @@ def enviar_email_html(assunto, template, contexto, enviar_para):
 
         config = DynamicEmailConfiguration.get_solo()
         msg_html = render_to_string(f"email/{template}.html", contexto)
-        email_utilizado = EMAILS[contexto.get('id') % len(EMAILS)]
+        emails = ListaEmail.objects.all()
+        email_utilizado = emails[contexto.get('id') % len(emails)].email
         config.from_email = email_utilizado
         config.username = email_utilizado
         msg = EmailMessage(
