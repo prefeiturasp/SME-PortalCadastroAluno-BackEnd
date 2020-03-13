@@ -17,10 +17,10 @@ class AlunosViewSet(viewsets.ModelViewSet):
     queryset = Aluno.objects.all()
     serializer_class = AlunoSerializer
 
-    def dados_dashboard(self, query_set: list) -> dict:
+    def dados_dashboard(self, query_set: list, quantidade_desatualizados: int) -> dict:
         alunos_online = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=False).count()
         alunos_escola = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=True).count()
-        desatualizados = query_set.filter(responsavel__status='DESATUALIZADO').count()
+        desatualizados = quantidade_desatualizados
         pendencia_resolvida = query_set.filter(responsavel__status='PENDENCIA_RESOLVIDA').count()
         divergente = query_set.filter(responsavel__status='DIVERGENTE').count()
         sumario = {
@@ -32,7 +32,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
             'Cadastros desatualizados': desatualizados,
             'Cadastros com pendências resolvidas': pendencia_resolvida,
             'Cadastros divergentes': divergente,
-            'total alunos': query_set.count(),
+            'total alunos': query_set.count() + quantidade_desatualizados,
         }
 
         return sumario
@@ -80,7 +80,16 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         try:
-            return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
+            status_ = request.query_params.get('status')
+            if not status_ or status_ != 'Cadastro Desatualizado':
+                return Response(AlunoLookUpSerializer(self.get_queryset(), many=True).data)
+            else:
+                cod_eol_escola = request.user.codigo_escola
+                response = EOLService.get_alunos_escola(cod_eol_escola)
+                lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
+                alunos = [aluno for aluno in response if aluno['cd_aluno'] not in lista_codigo_eol]
+                return Response(alunos)
+                pass
         except EOLException as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -101,9 +110,19 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return Response(data)
         except Aluno.DoesNotExist:
             return Response({'detail': 'Aluno não encontrado'}, status=status.HTTP_400_BAD_REQUEST)
+        except EOLException as e:
+            return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
+        except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['GET'], url_path='dashboard')
     def dashboard(self, request):
+        cod_eol_escola = request.user.codigo_escola
+        response = EOLService.get_alunos_escola(cod_eol_escola)
+        lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
+        quantidade_desatualizados = len(response) - len(lista_codigo_eol)
         query_set = self.get_queryset_dashboard()
-        response = {'results': self.dados_dashboard(query_set=query_set)}
+        response = {'results': self.dados_dashboard(
+            query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
+        )}
         return Response(response)
