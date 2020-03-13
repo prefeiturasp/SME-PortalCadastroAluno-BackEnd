@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ListaPalavrasBloqueadas, Email
+from .models import ListaPalavrasBloqueadas, Email, ListaEmail
 
 
 @admin.register(ListaPalavrasBloqueadas)
@@ -13,5 +13,11 @@ class ListaPalavrasBloqueadasAdmin(admin.ModelAdmin):
 class EmailAdmin(admin.ModelAdmin):
     list_display = ('enviar_para', 'criado_em', 'assunto', 'enviado')
     search_fields = ('enviar_para', 'criado_em', 'enviado')
+
+
+@admin.register(ListaEmail)
+class ListaEmailAdmin(admin.ModelAdmin):
+    list_display = ('email',)
+    search_fields = ('email',)
 
 
