@@ -117,10 +117,12 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'], url_path='dashboard')
     def dashboard(self, request):
-        cod_eol_escola = request.user.codigo_escola
-        response = EOLService.get_alunos_escola(cod_eol_escola)
-        lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
-        quantidade_desatualizados = len(response) - len(lista_codigo_eol)
+        quantidade_desatualizados = 0
+        if request.user.perfil_usuario == "perfil_escola":
+            cod_eol_escola = request.user.codigo_escola
+            response = EOLService.get_alunos_escola(cod_eol_escola)
+            lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
+            quantidade_desatualizados = len(response) - len(lista_codigo_eol)
         query_set = self.get_queryset_dashboard()
         response = {'results': self.dados_dashboard(
             query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
