@@ -17,7 +17,7 @@ def enviar_email(assunto, mensagem, enviar_para):
     try:
         config = DynamicEmailConfiguration.get_solo()
         email_sme = None
-        emails_sme = Email.objects.filter(enviar_para=enviar_para, assunto=assunto)
+        emails_sme = Email.objects.filter(enviar_para=enviar_para, assunto=assunto, enviado=False)
         if not emails_sme:
             email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=mensagem)
         send_mail(
@@ -40,6 +40,10 @@ def enviar_email_html(assunto, template, contexto, enviar_para):
 
         config = DynamicEmailConfiguration.get_solo()
         msg_html = render_to_string(f"email/{template}.html", contexto)
+        email_sme = None
+        emails_sme = Email.objects.filter(enviar_para=enviar_para, assunto=assunto, enviado=False)
+        if not emails_sme:
+            email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=msg_html)
         emails = ListaEmail.objects.all()
         if emails:
             email_utilizado = emails[contexto.get('id') % len(emails)].email
@@ -52,10 +56,12 @@ def enviar_email_html(assunto, template, contexto, enviar_para):
             connection=EmailBackend(**config.__dict__)
         )
         msg.content_subtype = "html"  # Main content is now text/html
-        email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=msg_html)
         msg.send()
-        email_sme.enviado = True
-        email_sme.save()
+        if emails_sme.exists():
+            emails_sme.update(enviado=True)
+        elif email_sme:
+            email_sme.enviado = True
+            email_sme.save()
 
     except Exception as err:
         logger.error(str(err))
