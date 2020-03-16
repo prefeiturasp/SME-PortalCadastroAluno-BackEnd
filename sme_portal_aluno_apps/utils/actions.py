@@ -20,7 +20,7 @@ def style_output_file(file):
 
 
 def convert_data_date(value):
-    return value.strftime('%d/%m/%Y')
+    return value.strftime('%d/%m/%Y, %H:%M:%S')
 
 
 def convert_boolean_field(value):
