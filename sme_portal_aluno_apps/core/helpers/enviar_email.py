@@ -16,15 +16,21 @@ env = environ.Env()
 def enviar_email(assunto, mensagem, enviar_para):
     try:
         config = DynamicEmailConfiguration.get_solo()
-        email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=mensagem)
+        email_sme = None
+        emails_sme = Email.objects.filter(enviar_para=enviar_para, assunto=assunto)
+        if not emails_sme:
+            email_sme = Email.objects.create(enviar_para=enviar_para, assunto=assunto, body=mensagem)
         send_mail(
             subject=assunto,
             message=mensagem,
             from_email=config.from_email or None,
             recipient_list=[enviar_para]
         )
-        email_sme.enviado = True
-        email_sme.save()
+        if emails_sme.exists():
+            emails_sme.update(enviado=True)
+        elif email_sme:
+            email_sme.enviado = True
+            email_sme.save()
     except Exception as err:
         logger.error(str(err))
 
@@ -35,9 +41,10 @@ def enviar_email_html(assunto, template, contexto, enviar_para):
         config = DynamicEmailConfiguration.get_solo()
         msg_html = render_to_string(f"email/{template}.html", contexto)
         emails = ListaEmail.objects.all()
-        email_utilizado = emails[contexto.get('id') % len(emails)].email
-        config.from_email = email_utilizado
-        config.username = email_utilizado
+        if emails:
+            email_utilizado = emails[contexto.get('id') % len(emails)].email
+            config.from_email = email_utilizado
+            config.username = email_utilizado
         msg = EmailMessage(
             subject=assunto, body=msg_html,
             from_email=config.from_email or None,
