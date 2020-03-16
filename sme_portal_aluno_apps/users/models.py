@@ -49,9 +49,11 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
     def perfil_usuario(self):
         if not self.codigo_escola or not self.codigo_dre:
             return "perfil_indisponivel"
+        elif self.codigo_dre not in CODIGOS_DRES:
+            return 'perfil_sme'
         elif self.codigo_escola != self.codigo_dre:
             return 'perfil_escola'
         elif self.codigo_dre in CODIGOS_DRES:
             return 'perfil_dre'
         else:
-            return 'perfil_sme'
+            return 'perfil_indisponivel'
