@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.validators import MinLengthValidator
 from django.db.models import CharField
 from django.urls import reverse
@@ -33,6 +34,18 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
                     f'{url_configs("CONFIRMAR_EMAIL", content)}')
         enviar_email_simples.delay(
             assunto='Confirme seu e-mail - Ambiente administrativo do Portal do Uniforme',
+            mensagem=conteudo,
+            enviar_para=self.email
+        )
+
+    def enviar_email_recuperacao_senha(self):
+        token_generator = PasswordResetTokenGenerator()
+        token = token_generator.make_token(self)
+        content = {'uuid': self.uuid, 'confirmation_key': token}
+        titulo = 'Recuperação de senha'
+        conteudo = f'Clique neste link para criar uma nova senha no SIGPAE: {url_configs("RECUPERAR_SENHA", content)}'
+        enviar_email_simples.delay(
+            assunto=titulo,
             mensagem=conteudo,
             enviar_para=self.email
         )
