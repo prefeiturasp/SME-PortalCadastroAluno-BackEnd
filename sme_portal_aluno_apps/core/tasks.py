@@ -7,7 +7,7 @@ from sme_portal_aluno_apps.core.helpers.enviar_email import enviar_email_html
 from sme_portal_aluno_apps.core.models import Email
 
 
-@periodic_task(run_every=crontab(hour=4, minute=0))
+# @periodic_task(run_every=crontab(hour=4, minute=0))
 def enviar_emails_engasgados():
     emails = Email.objects.filter(enviado=False)
     EMAILS = [{"email": "nao-responda20@sme.prefeitura.sp.gov.br"},
