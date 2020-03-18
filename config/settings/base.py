@@ -210,6 +210,7 @@ TEMPLATES = [
 
 URL_CONFIGS = {
     'CONFIRMAR_EMAIL': '/confirmar-email?uuid={uuid}&confirmationKey={confirmation_key}',
+    'RECUPERAR_SENHA': '/recuperar-senha?uuid={uuid}&confirmationKey={confirmation_key}'
 }
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#form-renderer
