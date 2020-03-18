@@ -13,6 +13,7 @@ class ListaPalavrasBloqueadasAdmin(admin.ModelAdmin):
 class EmailAdmin(admin.ModelAdmin):
     list_display = ('enviar_para', 'criado_em', 'assunto', 'enviado')
     search_fields = ('enviar_para', 'criado_em', 'enviado')
+    list_filter = ('enviado',)
 
 
 @admin.register(ListaEmail)
