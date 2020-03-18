@@ -43,7 +43,8 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
         token = token_generator.make_token(self)
         content = {'uuid': self.uuid, 'confirmation_key': token}
         titulo = 'Recuperação de senha'
-        conteudo = f'Clique neste link para criar uma nova senha no SIGPAE: {url_configs("RECUPERAR_SENHA", content)}'
+        conteudo = (f'Clique neste link para criar uma nova senha no ambiente administrativo do Portal do Uniforme: ' +
+                    f'{url_configs("RECUPERAR_SENHA", content)}')
         enviar_email_simples.delay(
             assunto=titulo,
             mensagem=conteudo,
@@ -57,6 +58,14 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
             ).exclude(responsavel__status='DESATUALIZADO').values('codigo_eol')
         )
         return [int(aluno['codigo_eol']) for aluno in lista_codigo_eol]
+
+    def atualiza_senha(self, senha, token):
+        token_generator = PasswordResetTokenGenerator()
+        if token_generator.check_token(self, token):
+            self.set_password(senha)
+            self.save()
+            return True
+        return False
 
     @property
     def perfil_usuario(self):

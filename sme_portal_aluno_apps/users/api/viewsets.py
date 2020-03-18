@@ -57,6 +57,24 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
         usuario.enviar_email_recuperacao_senha()
         return Response({'email': f'{ofuscar_email(usuario.email)}'})
 
+    @action(detail=False, methods=['POST'], url_path='atualizar-senha/(?P<usuario_uuid>.*)/(?P<token_reset>.*)')  # noqa
+    def atualizar_senha(self, request, usuario_uuid=None, token_reset=None):
+        # TODO: melhorar este método
+        senha1 = request.data.get('senha1')
+        senha2 = request.data.get('senha2')
+        if senha1 != senha2:
+            return Response({'detail': 'Senhas divergem'}, status.HTTP_400_BAD_REQUEST)
+        try:
+            usuario = User.objects.get(uuid=usuario_uuid)
+        except ObjectDoesNotExist:
+            return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if usuario.atualiza_senha(senha=senha1, token=token_reset):
+            return Response({'sucesso!': 'senha atualizada com sucesso'})
+        else:
+            return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
+
+
 
 class UsuarioConfirmaEmailViewSet(GenericViewSet):
     permission_classes = (permissions.AllowAny,)
