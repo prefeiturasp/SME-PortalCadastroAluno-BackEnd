@@ -75,7 +75,6 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
 
 
-
 class UsuarioConfirmaEmailViewSet(GenericViewSet):
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
