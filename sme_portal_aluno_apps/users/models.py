@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.validators import MinLengthValidator
 from django.db.models import CharField
 from django.urls import reverse
@@ -37,6 +38,19 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
             enviar_para=self.email
         )
 
+    def enviar_email_recuperacao_senha(self):
+        token_generator = PasswordResetTokenGenerator()
+        token = token_generator.make_token(self)
+        content = {'uuid': self.uuid, 'confirmation_key': token}
+        titulo = 'Recuperação de senha'
+        conteudo = (f'Clique neste link para criar uma nova senha no ambiente administrativo do Portal do Uniforme: ' +
+                    f'{url_configs("RECUPERAR_SENHA", content)}')
+        enviar_email_simples.delay(
+            assunto=titulo,
+            mensagem=conteudo,
+            enviar_para=self.email
+        )
+
     def get_alunos_nao_desatualizados(self):
         lista_codigo_eol = list(
             Aluno.objects.filter(
@@ -44,6 +58,14 @@ class User(SimpleEmailConfirmationUserMixin, AbstractUser, TemChaveExterna):
             ).exclude(responsavel__status='DESATUALIZADO').values('codigo_eol')
         )
         return [int(aluno['codigo_eol']) for aluno in lista_codigo_eol]
+
+    def atualiza_senha(self, senha, token):
+        token_generator = PasswordResetTokenGenerator()
+        if token_generator.check_token(self, token):
+            self.set_password(senha)
+            self.save()
+            return True
+        return False
 
     @property
     def perfil_usuario(self):

@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .serializers import UserSerializer
+from ...core.utils import ofuscar_email
 from ...eol_servico.utils import EOLException
 
 User = get_user_model()
@@ -22,6 +23,9 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
 
     def get_queryset(self, *args, **kwargs):
         return self.queryset.filter(id=self.request.user.id)
+
+    def _get_usuario_por_rf(self, registro_funcional):
+        return User.objects.get(username=registro_funcional)
 
     def create(self, request):  # noqa C901
         try:
@@ -42,6 +46,34 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
     def me(self, request):
         serializer = UserSerializer(request.user, context={"request": request})
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+    @action(detail=False, url_path='recuperar-senha/(?P<registro_funcional>.*)')
+    def recuperar_senha(self, request, registro_funcional=None):
+        try:
+            usuario = self._get_usuario_por_rf(registro_funcional)
+        except ObjectDoesNotExist:
+            return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        usuario.enviar_email_recuperacao_senha()
+        return Response({'email': f'{ofuscar_email(usuario.email)}'})
+
+    @action(detail=False, methods=['POST'], url_path='atualizar-senha/(?P<usuario_uuid>.*)/(?P<token_reset>.*)')  # noqa
+    def atualizar_senha(self, request, usuario_uuid=None, token_reset=None):
+        # TODO: melhorar este método
+        senha1 = request.data.get('senha1')
+        senha2 = request.data.get('senha2')
+        if senha1 != senha2:
+            return Response({'detail': 'Senhas divergem'}, status.HTTP_400_BAD_REQUEST)
+        try:
+            usuario = User.objects.get(uuid=usuario_uuid)
+        except ObjectDoesNotExist:
+            return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        if usuario.atualiza_senha(senha=senha1, token=token_reset):
+            return Response({'sucesso!': 'senha atualizada com sucesso'})
+        else:
+            return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
+
 
 
 class UsuarioConfirmaEmailViewSet(GenericViewSet):
