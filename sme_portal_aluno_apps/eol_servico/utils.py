@@ -89,6 +89,21 @@ class EOLService(object):
             raise EOLException(f'API EOL com erro. Status: {response.status_code}')
 
     @classmethod
+    def get_alunos_escola(cls, cod_eol_escola):
+        log.info(f"Buscando alunos de uma escola com o código EOL: {cod_eol_escola}")
+        response = requests.get(f'{DJANGO_EOL_API_TERC_URL}/escola_turma_aluno/{cod_eol_escola}',
+                                headers=cls.DEFAULT_HEADERS_TERC,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            log.info(f"Alunos da escola: {results}")
+            if len(results) >= 1:
+                return results
+            raise EOLException(f'Resultados para o Código EOL: {cod_eol_escola} vazios')
+        else:
+            raise EOLException(f'API EOL com erro. Status: {response.status_code}')
+
+    @classmethod
     def cpf_divergente(cls, codigo_eol, cpf):
         cpf_eol = ''
         response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
@@ -104,6 +119,9 @@ class EOLService(object):
     def cria_aluno_desatualizado(cls, codigo_eol):
         dados = cls.get_informacoes_responsavel(codigo_eol)
         cls.registra_log(codigo_eol, dados)
+        if not dados['responsaveis']:
+            raise EOLException('Código com cadastro incompleto. Falta cadastrar no EOL o(a) responsável ' +
+                               'pela criança, para depois fazer a solicitação do uniforme')
         cpf = ajusta_cpf(dados['responsaveis'][0]['cd_cpf_responsavel'])
         data_nascimento = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
         responsavel = Responsavel.objects.create(

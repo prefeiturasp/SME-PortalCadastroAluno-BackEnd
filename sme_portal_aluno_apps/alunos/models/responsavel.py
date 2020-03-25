@@ -70,9 +70,13 @@ class Responsavel(ModeloBase):
         "E-mail", max_length=255, validators=[validators.EmailValidator()], blank=True, null=True
     )
 
+    nao_possui_email = models.BooleanField(default=False)
+
     ddd_celular = models.CharField("DDD Celular", max_length=4, blank=True, null=True)
 
     celular = models.CharField("Número Celular", validators=[phone_validation], max_length=9, blank=True, null=True)
+
+    nao_possui_celular = models.BooleanField(default=False)
 
     data_nascimento = models.DateField("Data de Nascimento", blank=True, null=True)
 
@@ -86,16 +90,20 @@ class Responsavel(ModeloBase):
     )
 
     def enviar_email(self):
-        nome_aluno = self.alunos.nome
-        if self.status == 'DIVERGENTE':
-            log.info(f'Enviando email divergencia para: {self.email}.')
-            enviar_email_solicitacao_uniforme.delay(
-                'Divergência nos dados informados', 'email_divergencia_cpf', self.email, {'nome': nome_aluno, })
+        if self.email:
+            nome_aluno = self.alunos.nome
+            if self.status == 'DIVERGENTE':
+                log.info(f'Enviando email divergencia para: {self.email}.')
+                enviar_email_solicitacao_uniforme.delay(
+                    'Divergência nos dados informados', 'email_divergencia_cpf', self.email, {'nome': nome_aluno,
+                                                                                              'id': self.id})
+            else:
+                log.info(f'Enviando email confirmação para: {self.email}.')
+                enviar_email_solicitacao_uniforme.delay(
+                    'Obrigado por solicitar o uniforme escolar', 'email_confirmacao_pedido', self.email,
+                    {'nome': nome_aluno, 'id': self.id})
         else:
-            log.info(f'Enviando email confirmação para: {self.email}.')
-            enviar_email_solicitacao_uniforme.delay(
-                'Obrigado por solicitar o uniforme escolar', 'email_confirmacao_pedido', self.email,
-                {'nome': nome_aluno, })
+            log.info('Não possui e-mail para envio')
 
     def __str__(self):
         return f"{self.nome} - Cod. EOL Aluno: {self.codigo_eol_aluno}"

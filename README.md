@@ -5,13 +5,23 @@ Portal do programa de solicitação de uniforme da Secretaria de Educação da c
 
 License: MIT
 
-Versão: 1.0.0
+Versão: 1.1.0
 
 
 ## Release Notes
 
-### 1.0.0 - 09/03/2020 - Sprint 1
+### 1.1.0 - 25/03/2020
+* Consulta aos alunos desatualizados pela Escola
+* Painel Gerencial para o Perfil SME
+* Painel Gerencial para o Perfil Escola
+* Reset de Senha do Sistema para os servidores municipais
+
+### 1.0.0 - 09/03/2020
 * Entrada do sistema em produção
+* Busca e atualização cadastral dos alunos da rede pelos responsaveis
+* Busca e atualização cadastral dos alunos da escola pelo servidor da escola
+* Cadastro e Login de Senha do Sistema para os servidores municipais
+
 
 ## Executar o projeto com docker
 
