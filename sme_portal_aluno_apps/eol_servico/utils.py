@@ -34,7 +34,7 @@ class EOLException(Exception):
 class EOLService(object):
     DEFAULT_HEADERS = {'Authorization': f'Token {DJANGO_EOL_API_TOKEN}'}
     DEFAULT_HEADERS_TERC = {'Authorization': f'Token {DJANGO_EOL_API_TERC_TOKEN}'}
-    DEFAULT_TIMEOUT = 10
+    DEFAULT_TIMEOUT = 20
 
     @classmethod
     def get_informacoes_responsavel(cls, codigo_eol):
