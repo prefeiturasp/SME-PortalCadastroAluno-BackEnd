@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError as coreValidationError
 from rest_framework import status, permissions
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -87,5 +87,8 @@ class UsuarioConfirmaEmailViewSet(GenericViewSet):
             usuario.save()
         except ObjectDoesNotExist:
             return Response({'detail': 'Erro ao confirmar email'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except coreValidationError:
+            return Response({'detail': 'Parâmetros para confirmação de e-mail inválidos'},
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(UserSerializer(usuario).data)
