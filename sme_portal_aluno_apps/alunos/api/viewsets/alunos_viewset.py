@@ -1,4 +1,4 @@
-from requests import ReadTimeout
+from requests import ConnectTimeout, ReadTimeout
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets, status
@@ -92,6 +92,10 @@ class AlunosViewSet(viewsets.ModelViewSet):
                 pass
         except EOLException as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except ConnectTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, request, *args, **kwargs):
         try:
@@ -99,6 +103,8 @@ class AlunosViewSet(viewsets.ModelViewSet):
         except EOLException as e:
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
         except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except ConnectTimeout:
             return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, codigo_eol=None, **kwargs):
@@ -114,17 +120,24 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
         except ReadTimeout:
             return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except ConnectTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['GET'], url_path='dashboard')
     def dashboard(self, request):
-        quantidade_desatualizados = 0
-        if request.user.perfil_usuario == "perfil_escola":
-            cod_eol_escola = request.user.codigo_escola
-            response = EOLService.get_alunos_escola(cod_eol_escola)
-            lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
-            quantidade_desatualizados = len(response) - len(lista_codigo_eol)
-        query_set = self.get_queryset_dashboard()
-        response = {'results': self.dados_dashboard(
-            query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
-        )}
-        return Response(response)
+        try:
+            quantidade_desatualizados = 0
+            if request.user.perfil_usuario == "perfil_escola":
+                cod_eol_escola = request.user.codigo_escola
+                response = EOLService.get_alunos_escola(cod_eol_escola)
+                lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
+                quantidade_desatualizados = len(response) - len(lista_codigo_eol)
+            query_set = self.get_queryset_dashboard()
+            response = {'results': self.dados_dashboard(
+                query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
+            )}
+            return Response(response)
+        except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except ConnectTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)

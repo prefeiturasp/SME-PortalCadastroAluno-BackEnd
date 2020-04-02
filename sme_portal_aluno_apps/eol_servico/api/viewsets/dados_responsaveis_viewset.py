@@ -1,4 +1,4 @@
-from requests import ReadTimeout
+from requests import ConnectTimeout, ReadTimeout
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -30,7 +30,7 @@ class DadosResponsavelEOLViewSet(ViewSet):
             else:
                 data_nascimento_eol = datetime.datetime.strptime(dados['dt_nascimento_aluno'], "%Y-%m-%dT%H:%M:%S")
                 if data_nascimento_request.date() == data_nascimento_eol.date():
-                    if dados['recebe_uniforme'] == 'S':
+                    if dados['recebe_uniforme'] == 'S' and dados['recadastra'] == 'S':
                         EOLService.registra_log(codigo_eol=codigo_eol, json=dados)
                         if dados['responsaveis']:
                             if not request.user.codigo_escola:
@@ -46,4 +46,6 @@ class DadosResponsavelEOLViewSet(ViewSet):
         except EOLException as e:
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
         except ReadTimeout:
+            return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except ConnectTimeout:
             return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
