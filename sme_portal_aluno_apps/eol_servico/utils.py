@@ -9,6 +9,7 @@ from ..alunos.models import Aluno, Responsavel
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
 from ..alunos.api.services.aluno_service import AlunoService
 from .helpers import ajusta_cpf
+from ..core.constants import ESCOLAS_CEI
 
 env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
@@ -98,6 +99,9 @@ class EOLService(object):
             results = response.json()['results']
             log.info(f"Alunos da escola: {results}")
             if len(results) >= 1:
+                if cod_eol_escola in ESCOLAS_CEI:
+                    results = [aluno for aluno in results if
+                               aluno.get('dc_serie_ensino') in ['INFANTIL I', 'INFANTIL II']]
                 return results
             raise EOLException(f'Resultados para o Código EOL: {cod_eol_escola} vazios')
         else:
