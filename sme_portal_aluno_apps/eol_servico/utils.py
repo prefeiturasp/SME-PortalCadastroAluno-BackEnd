@@ -148,3 +148,22 @@ class EOLService(object):
             responsavel=responsavel,
         )
         return aluno
+
+
+class EOLWebService(object):
+    DEFAULT_HEADERS = {'Authorization': f'Token {DJANGO_EOL_API_TOKEN}'}
+    DEFAULT_HEADERS_TERC = {'Authorization': f'Token {DJANGO_EOL_API_TERC_TOKEN}'}
+    DEFAULT_TIMEOUT = 20
+
+    @classmethod
+    def atualizar_dados_responsavel(cls, cd_aluno: str, tp_pessoa_responsavel: str, nm_responsavel: str,
+                                    cd_cpf_responsavel: str, cd_ddd_celular_responsavel: str,
+                                    nr_celular_responsavel: str, email_responsavel: str, nm_mae_responsavel: str,
+                                    dt_nascimento_responsavel: str, usuario: str = 'webResp', senha: str = 'resp',
+                                    nr_rg_responsavel: str = None, cd_digito_rg_responsavel: str = None,
+                                    sg_uf_rg_responsavel: str = None, in_autoriza_envio_sms_responsavel=None,
+                                    in_cpf_responsavel_confere=None, cd_tipo_turno_celular=None,
+                                    cd_ddd_telefone_fixo_responsavel=None, nr_telefone_fixo_responsavel=None,
+                                    cd_tipo_turno_fixo=None, cd_ddd_telefone_comercial_responsavel=None,
+                                    nr_telefone_comercial_responsavel=None, cd_tipo_turno_comercial=None, ):
+        pass
