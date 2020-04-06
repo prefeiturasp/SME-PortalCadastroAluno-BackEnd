@@ -4,6 +4,7 @@ from django.db import models
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from ..tasks import enviar_email_solicitacao_uniforme
+from ...eol_servico.utils import EOLService
 from .validators import phone_validation, cpf_validation
 
 log = logging.getLogger(__name__)
@@ -104,6 +105,11 @@ class Responsavel(ModeloBase):
                     {'nome': nome_aluno, 'id': self.id})
         else:
             log.info('Não possui e-mail para envio')
+
+    def atualizar_responsavel_no_eol(self):
+        EOLService.atualizar_dados_responsavel(self.codigo_eol_aluno, str(self.vinculo), self.nome, self.cpf,
+                                               self.ddd_celular, self.celular, self.email, self.nome_mae,
+                                               str(self.data_nascimento))
 
     def __str__(self):
         return f"{self.nome} - Cod. EOL Aluno: {self.codigo_eol_aluno}"
