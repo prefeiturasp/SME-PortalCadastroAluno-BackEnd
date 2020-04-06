@@ -4,6 +4,7 @@ import datetime
 import environ
 import requests
 from rest_framework import status
+from requests.auth import HTTPBasicAuth
 
 from ..alunos.models import Aluno, Responsavel
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
@@ -15,8 +16,8 @@ env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
 DJANGO_EOL_API_URL = env('DJANGO_EOL_API_URL')
 DJANGO_EOL_API_ATUALIZAR_URL = env('DJANGO_EOL_API_ATUALIZAR_URL')
-USUARIO_EOL_API = env('DJANGO_EOL_API_USER')
-SENHA_EOL_API = env('DJANGO_EOL_API_PASSWORD')
+user = 'usuarioAPI'
+password = 'M75Ho6kizyA9'
 DJANGO_EOL_API_TERC_TOKEN = env('DJANGO_EOL_API_TERC_TOKEN')
 DJANGO_EOL_API_TERC_URL = env('DJANGO_EOL_API_TERC_URL')
 
@@ -36,7 +37,7 @@ class EOLException(Exception):
 
 
 class EOLService(object):
-    DEFAULT_AUTH = ({USUARIO_EOL_API}, {SENHA_EOL_API})
+    DEFAULT_AUTH = (user, password)
     DEFAULT_HEADERS = {'Authorization': f'Token {DJANGO_EOL_API_TOKEN}'}
     DEFAULT_HEADERS_TERC = {'Authorization': f'Token {DJANGO_EOL_API_TERC_TOKEN}'}
     DEFAULT_TIMEOUT = 20
@@ -182,9 +183,13 @@ class EOLService(object):
             "cd_tipo_turno_comercial": None,
         }
 
-        response = requests.post({DJANGO_EOL_API_ATUALIZAR_URL},
-                                 auth=cls.DEFAULT_AUTH,
+        response = requests.post(DJANGO_EOL_API_ATUALIZAR_URL,
+                                 auth=HTTPBasicAuth(user, password),
                                  timeout=cls.DEFAULT_TIMEOUT,
                                  data=payload)
+        print(response)
+        print(HTTPBasicAuth(user, password))
+        print(DJANGO_EOL_API_ATUALIZAR_URL)
+        print(payload)
 
         return response
