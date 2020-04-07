@@ -16,8 +16,10 @@ env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
 DJANGO_EOL_API_URL = env('DJANGO_EOL_API_URL')
 DJANGO_EOL_API_ATUALIZAR_URL = env('DJANGO_EOL_API_ATUALIZAR_URL')
-user = 'usuarioAPI'
-password = 'M75Ho6kizyA9'
+USUARIO_EOL_API = env('DJANGO_EOL_API_USER')
+SENHA_EOL_API = env('DJANGO_EOL_API_PASSWORD')
+# user = 'usuarioAPI'
+# password = 'M75Ho6kizyA9'
 DJANGO_EOL_API_TERC_TOKEN = env('DJANGO_EOL_API_TERC_TOKEN')
 DJANGO_EOL_API_TERC_URL = env('DJANGO_EOL_API_TERC_URL')
 
@@ -37,7 +39,6 @@ class EOLException(Exception):
 
 
 class EOLService(object):
-    DEFAULT_AUTH = (user, password)
     DEFAULT_HEADERS = {'Authorization': f'Token {DJANGO_EOL_API_TOKEN}'}
     DEFAULT_HEADERS_TERC = {'Authorization': f'Token {DJANGO_EOL_API_TERC_TOKEN}'}
     DEFAULT_TIMEOUT = 20
@@ -157,38 +158,63 @@ class EOLService(object):
     @classmethod
     def atualizar_dados_responsavel(cls, codigo_eol: str, vinculo: str, nome: str, cpf: str, ddd_celular: str,
                                     celular: str, email: str, nome_mae: str, data_nascimento: str):
+        # payload = {
+        #     "usuario": "webResp",
+        #     "senha": "resp",
+        #     "cd_aluno": codigo_eol,
+        #     "tp_pessoa_responsavel": vinculo,
+        #     "nm_responsavel": nome,
+        #     "cpf": cpf,
+        #     "cd_ddd_celular_responsavel": ddd_celular,
+        #     "nr_celular_responsavel": celular,
+        #     "in_autoriza_envio_sms_responsavel": "S",
+        #     "email_responsavel": email,
+        #     "nm_mae_responsavel": nome_mae,
+        #     "dt_nascimento_responsavel": data_nascimento,
+        #     "nr_rg_responsavel": None,
+        #     "cd_digito_rg_responsavel": None,
+        #     "sg_uf_rg_responsavel": None,
+        #     "in_cpf_responsavel_confere": None,
+        #     "cd_tipo_turno_celular": None,
+        #     "cd_ddd_telefone_fixo_responsavel": None,
+        #     "nr_telefone_fixo_responsavel": None,
+        #     "cd_tipo_turno_fixo": None,
+        #     "cd_ddd_telefone_comercial_responsavel": None,
+        #     "nr_telefone_comercial_responsavel": None,
+        #     "cd_tipo_turno_comercial": None,
+        # }
         payload = {
             "usuario": "webResp",
             "senha": "resp",
-            "cd_aluno": codigo_eol,
-            "tp_pessoa_responsavel": vinculo,
-            "nm_responsavel": nome,
-            "cpf": cpf,
-            "cd_ddd_celular_responsavel": ddd_celular,
-            "nr_celular_responsavel": celular,
+            "cd_aluno": "7098619",
+            "tp_pessoa_responsavel": "1",
+            "nm_responsavel": "LILIANA MARIA DA SILVA",
+            "nr_rg_responsavel": "000000034839442",
+            "cd_digito_rg_responsavel": "0",
+            "sg_uf_rg_responsavel": "SP",
+            "cd_cpf_responsavel": "33287331833",
+            "in_cpf_responsavel_confere": "S",
+            "cd_ddd_celular_responsavel": "11",
+            "nr_celular_responsavel": "965884754",
+            "cd_tipo_turno_celular": "3",
+            "cd_ddd_telefone_fixo_responsavel": "11",
+            "nr_telefone_fixo_responsavel": "36598444",
+            "cd_tipo_turno_fixo": "5",
+            "cd_ddd_telefone_comercial_responsavel": "11",
+            "nr_telefone_comercial_responsavel": "36598455",
+            "cd_tipo_turno_comercial": "3",
             "in_autoriza_envio_sms_responsavel": "S",
-            "email_responsavel": email,
-            "nm_mae_responsavel": nome_mae,
-            "dt_nascimento_responsavel": data_nascimento,
-            "nr_rg_responsavel": None,
-            "cd_digito_rg_responsavel": None,
-            "sg_uf_rg_responsavel": None,
-            "in_cpf_responsavel_confere": None,
-            "cd_tipo_turno_celular": None,
-            "cd_ddd_telefone_fixo_responsavel": None,
-            "nr_telefone_fixo_responsavel": None,
-            "cd_tipo_turno_fixo": None,
-            "cd_ddd_telefone_comercial_responsavel": None,
-            "nr_telefone_comercial_responsavel": None,
-            "cd_tipo_turno_comercial": None,
+            "email_responsavel": "lilianateste@ig.com.br",
+            "nm_mae_responsavel": "MARIA DE JESUS TESTE TESTE",
+            "dt_nascimento_responsavel": "19541201"
         }
 
         response = requests.post(DJANGO_EOL_API_ATUALIZAR_URL,
-                                 auth=HTTPBasicAuth(user, password),
+                                 auth=HTTPBasicAuth(USUARIO_EOL_API, SENHA_EOL_API),
                                  timeout=cls.DEFAULT_TIMEOUT,
                                  data=payload)
         print(response)
-        print(HTTPBasicAuth(user, password))
+        print(HTTPBasicAuth(USUARIO_EOL_API, SENHA_EOL_API))
         print(DJANGO_EOL_API_ATUALIZAR_URL)
         print(payload)
 
