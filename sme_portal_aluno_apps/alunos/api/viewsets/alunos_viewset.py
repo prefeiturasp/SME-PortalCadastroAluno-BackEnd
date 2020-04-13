@@ -65,11 +65,15 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
         return queryset.order_by('nome')
 
-    def get_queryset_dashboard(self):
+    def get_queryset_dashboard(self, codigo_escola=None):
         query_set = Aluno.objects.all()
         user = self.request.user
         if user.perfil_usuario == 'perfil_escola':
             query_set = query_set.filter(codigo_escola=user.codigo_escola)
+        elif user.perfil_usuario == 'perfil_dre':
+            query_set = query_set.filter(codigo_dre=user.codigo_dre)
+            if codigo_escola:
+                query_set = query_set.filter(codigo_escola=codigo_escola)
         return query_set
 
     def get_serializer_class(self):
@@ -132,7 +136,8 @@ class AlunosViewSet(viewsets.ModelViewSet):
                 response = EOLService.get_alunos_escola(cod_eol_escola)
                 lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
                 quantidade_desatualizados = len(response) - len(lista_codigo_eol)
-            query_set = self.get_queryset_dashboard()
+            codigo_eol_escola = request.query_params.get('cod_eol_escola', None)
+            query_set = self.get_queryset_dashboard(codigo_eol_escola)
             response = {'results': self.dados_dashboard(
                 query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
             )}
