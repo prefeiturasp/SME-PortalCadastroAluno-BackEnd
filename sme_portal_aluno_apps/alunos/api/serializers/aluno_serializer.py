@@ -98,7 +98,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
         log.info("Inicia envio de email.")
         responsavel_criado.enviar_email()
-        if responsavel_criado.status == 'ATUALIZADO_VALIDO':
+        if responsavel_criado.status == 'ATUALIZADO_VALIDO' or responsavel_criado.status == 'PENDENCIA_RESOLVIDA':
             responsavel_criado.salvar_no_eol()
         log.info("Aluno Criado/Atualizado.")
         return aluno
