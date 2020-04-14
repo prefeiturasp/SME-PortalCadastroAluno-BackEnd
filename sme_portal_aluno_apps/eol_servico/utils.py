@@ -155,7 +155,7 @@ class EOLService(object):
 
     @classmethod
     def atualizar_dados_responsavel(cls, codigo_eol: str, vinculo: str, nome: str, cpf: str, ddd_celular: str,
-                                    celular: str, email: str, nome_mae: str, data_nascimento: str):
+                                    celular: str, tipo_turno_celular: str, email: str, nome_mae: str, data_nascimento: str):
         payload = {
             "usuario": "webResp",
             "senha": "resp",
@@ -163,10 +163,10 @@ class EOLService(object):
             "tp_pessoa_responsavel": vinculo,
             "nm_responsavel": nome,
             "cd_cpf_responsavel": cpf,
-            "in_cpf_responsavel_confere": "S",
+            "in_cpf_responsavel_confere": "N",
             "cd_ddd_celular_responsavel": ddd_celular,
             "nr_celular_responsavel": celular,
-            "cd_tipo_turno_celular": "1",
+            "cd_tipo_turno_celular": tipo_turno_celular,
             "in_autoriza_envio_sms_responsavel": "S",
             "email_responsavel": email,
             "nm_mae_responsavel": nome_mae,

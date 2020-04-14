@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
     retry_kwargs={'max_retries': 8},
 )
 def atualizar_responsavel_no_eol(codigo_eol_aluno, vinculo, nome, cpf, ddd_celular, celular, email, nome_mae,
-                                 data_nascimento):
+                                 data_nascimento, tipo_turno_celular):
     from ..eol_servico.utils import EOLService
 
     log.info(f'Chamada do metodo para atualizacao no eol')
@@ -25,6 +25,7 @@ def atualizar_responsavel_no_eol(codigo_eol_aluno, vinculo, nome, cpf, ddd_celul
         cpf=cpf,
         ddd_celular=ddd_celular,
         celular=celular,
+        tipo_turno_celular=tipo_turno_celular,
         email=email,
         nome_mae=nome_mae,
         data_nascimento=data_nascimento
