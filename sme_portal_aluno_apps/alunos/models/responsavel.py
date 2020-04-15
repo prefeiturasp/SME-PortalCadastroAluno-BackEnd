@@ -111,8 +111,8 @@ class Responsavel(ModeloBase):
         tipo_turno_celular = '1' if self.celular else ''
         data_nascimento = str(self.data_nascimento).replace('-', '')
         log.info(f"Atualizando informações do responsavel pelo aluno: {self.codigo_eol_aluno} no eol")
-        atualizar_responsavel_no_eol.delay(self.codigo_eol_aluno, str(self.vinculo), self.nome, self.cpf,
-                                           self.ddd_celular, self.celular, self.email, self.nome_mae,
+        atualizar_responsavel_no_eol.delay(self.codigo_eol_aluno, str(self.vinculo), self.nome.upper(), self.cpf,
+                                           self.ddd_celular, self.celular, self.email, self.nome_mae.upper(),
                                            data_nascimento, tipo_turno_celular)
 
     def __str__(self):
