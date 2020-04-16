@@ -164,11 +164,11 @@ class EOLService(object):
             "nm_responsavel": nome,
             "cd_cpf_responsavel": cpf,
             "in_cpf_responsavel_confere": "N",
-            "cd_ddd_celular_responsavel": ddd_celular,
-            "nr_celular_responsavel": celular,
+            "cd_ddd_celular_responsavel": ddd_celular if ddd_celular else "",
+            "nr_celular_responsavel": celular if celular else "",
             "cd_tipo_turno_celular": tipo_turno_celular,
             "in_autoriza_envio_sms_responsavel": "S",
-            "email_responsavel": email,
+            "email_responsavel": email if email else "",
             "nm_mae_responsavel": nome_mae,
             "dt_nascimento_responsavel": data_nascimento,
             "nr_rg_responsavel": "",
@@ -195,8 +195,7 @@ class EOLService(object):
             responsavel.save()
         else:
             log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
+            raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")
 
-        print(response)
-        print(HTTPBasicAuth(USUARIO_EOL_API, SENHA_EOL_API))
-        print(DJANGO_EOL_API_ATUALIZAR_URL)
+        print(response.json())
         print(payload)
