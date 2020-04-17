@@ -20,5 +20,3 @@ class EmailAdmin(admin.ModelAdmin):
 class ListaEmailAdmin(admin.ModelAdmin):
     list_display = ('email',)
     search_fields = ('email',)
-
-

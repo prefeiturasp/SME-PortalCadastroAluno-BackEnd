@@ -155,7 +155,8 @@ class EOLService(object):
 
     @classmethod
     def atualizar_dados_responsavel(cls, codigo_eol: str, vinculo: str, nome: str, cpf: str, ddd_celular: str,
-                                    celular: str, tipo_turno_celular: str, email: str, nome_mae: str, data_nascimento: str):
+                                    celular: str, tipo_turno_celular: str, email: str, nome_mae: str,
+                                    data_nascimento: str):
         payload = {
             "usuario": "webResp",
             "senha": "resp",
@@ -196,6 +197,3 @@ class EOLService(object):
         else:
             log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
             raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")
-
-        print(response.json())
-        print(payload)
