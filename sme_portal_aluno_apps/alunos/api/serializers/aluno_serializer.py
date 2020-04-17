@@ -83,7 +83,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         cpf = responsavel.get('cpf', None)
         try:
             aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-            if aluno_obj.atualizado_na_escola and not user.codigo_escola:
+            if (aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
                 raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
             responsavel_criado, created = Responsavel.objects.update_or_create(
