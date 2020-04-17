@@ -86,11 +86,15 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             if aluno_obj.atualizado_na_escola and not user.codigo_escola:
                 raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+            if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
+                responsavel['pendencia_resolvida'] = True
             responsavel_criado, created = Responsavel.objects.update_or_create(
                 codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
             log.info(f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
         except Aluno.DoesNotExist:
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+            if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
+                responsavel['pendencia_resolvida'] = True
             responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
             validated_data['responsavel'] = responsavel_criado
             log.info(f"Aluno criado. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
