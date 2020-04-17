@@ -18,10 +18,14 @@ class AlunosViewSet(viewsets.ModelViewSet):
     serializer_class = AlunoSerializer
 
     def dados_dashboard(self, query_set: list, quantidade_desatualizados: int) -> dict:
-        alunos_online = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=False).count()
-        alunos_escola = query_set.filter(responsavel__status='ATUALIZADO_VALIDO', atualizado_na_escola=True).count()
+        alunos_online = query_set.filter(responsavel__status__in=['ATUALIZADO_EOL', 'ATUALIZADO_VALIDO'],
+                                         atualizado_na_escola=False,
+                                         responsavel__pendencia_resolvida=False).count()
+        alunos_escola = query_set.filter(responsavel__status__in=['ATUALIZADO_EOL', 'ATUALIZADO_VALIDO'],
+                                         atualizado_na_escola=True,
+                                         responsavel__pendencia_resolvida=False).count()
         desatualizados = quantidade_desatualizados
-        pendencia_resolvida = query_set.filter(responsavel__status='PENDENCIA_RESOLVIDA').count()
+        pendencia_resolvida = query_set.filter(responsavel__pendencia_resolvida=True).count()
         divergente = query_set.filter(responsavel__status='DIVERGENTE').count()
         sumario = {
             'Cadastros Validados': {
