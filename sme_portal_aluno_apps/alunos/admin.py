@@ -71,6 +71,14 @@ class ResponsavelAdmin(admin.ModelAdmin):
 
     enviar_emails.short_description = 'Enviar email para responsaveis'
 
+    def salvar_no_eol(self, request, queryset):
+        queryset = queryset.filter(status__in=['ATUALIZADO_VALIDO', 'PENDENCIA_RESOLVIDA'])
+        for responsavel in queryset:
+            responsavel.salvar_no_eol()
+        self.message_user(request, 'Registros enviados para processamento no celery.')
+
+    salvar_no_eol.short_description = 'Atualizar Responsaveis na base EOL'
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         if not request.user.is_superuser:
@@ -83,7 +91,7 @@ class ResponsavelAdmin(admin.ModelAdmin):
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome', 'codigo_eol_aluno')
     list_filter = ('status',)
-    actions = ['enviar_emails', export_as_xls]
+    actions = ['enviar_emails', 'salvar_no_eol', export_as_xls]
 
 
 @admin.register(LogConsultaEOL)
