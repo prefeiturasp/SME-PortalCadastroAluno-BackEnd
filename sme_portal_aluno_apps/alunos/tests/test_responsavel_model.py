@@ -38,9 +38,10 @@ def test_admin():
     model_admin = ResponsavelAdmin(Responsavel, admin.site)
     assert admin.site._registry[Responsavel]
     assert model_admin.list_display == (
-        'nome', 'cpf', 'data_nascimento', 'vinculo', 'nome_mae', 'celular', 'email', 'status')
+        'nome', 'cpf', 'codigo_eol_aluno', 'data_nascimento', 'vinculo', 'nome_mae', 'get_celular', 'email',
+        'status', 'criado_em')
     assert model_admin.ordering == ('-alterado_em',)
-    assert model_admin.search_fields == ('uuid', 'cpf', 'nome')
+    assert model_admin.search_fields == ('uuid', 'cpf', 'nome', 'codigo_eol_aluno')
 
 
 def test_responsavel_status_default_atualizado(responsavel):

@@ -4,6 +4,7 @@ import datetime
 import environ
 import requests
 from rest_framework import status
+from requests.auth import HTTPBasicAuth
 
 from ..alunos.models import Aluno, Responsavel
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
@@ -14,6 +15,9 @@ from ..core.constants import ESCOLAS_CEI
 env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
 DJANGO_EOL_API_URL = env('DJANGO_EOL_API_URL')
+DJANGO_EOL_API_ATUALIZAR_URL = env('DJANGO_EOL_API_ATUALIZAR_URL')
+USUARIO_EOL_API = env('DJANGO_EOL_API_USER')
+SENHA_EOL_API = env('DJANGO_EOL_API_PASSWORD')
 DJANGO_EOL_API_TERC_TOKEN = env('DJANGO_EOL_API_TERC_TOKEN')
 DJANGO_EOL_API_TERC_URL = env('DJANGO_EOL_API_TERC_URL')
 
@@ -148,3 +152,48 @@ class EOLService(object):
             responsavel=responsavel,
         )
         return aluno
+
+    @classmethod
+    def atualizar_dados_responsavel(cls, codigo_eol: str, vinculo: str, nome: str, cpf: str, ddd_celular: str,
+                                    celular: str, tipo_turno_celular: str, email: str, nome_mae: str,
+                                    data_nascimento: str):
+        payload = {
+            "usuario": "webResp",
+            "senha": "resp",
+            "cd_aluno": codigo_eol,
+            "tp_pessoa_responsavel": vinculo,
+            "nm_responsavel": nome,
+            "cd_cpf_responsavel": cpf,
+            "in_cpf_responsavel_confere": "N",
+            "cd_ddd_celular_responsavel": ddd_celular if ddd_celular else "",
+            "nr_celular_responsavel": celular if celular else "",
+            "cd_tipo_turno_celular": tipo_turno_celular,
+            "in_autoriza_envio_sms_responsavel": "S",
+            "email_responsavel": email if email else "",
+            "nm_mae_responsavel": nome_mae,
+            "dt_nascimento_responsavel": data_nascimento,
+            "nr_rg_responsavel": "",
+            "cd_digito_rg_responsavel": "",
+            "sg_uf_rg_responsavel": "",
+            "cd_ddd_telefone_fixo_responsavel": "",
+            "nr_telefone_fixo_responsavel": "",
+            "cd_tipo_turno_fixo": "",
+            "cd_ddd_telefone_comercial_responsavel": "",
+            "nr_telefone_comercial_responsavel": "",
+            "cd_tipo_turno_comercial": "",
+        }
+
+        log.info(f"Atualizando informações do responsavel pelo aluno: {codigo_eol} no eol")
+        response = requests.post(DJANGO_EOL_API_ATUALIZAR_URL,
+                                 auth=HTTPBasicAuth(USUARIO_EOL_API, SENHA_EOL_API),
+                                 timeout=cls.DEFAULT_TIMEOUT,
+                                 json=payload)
+
+        if response.json() == 'TRUE - ATUALIZACAO EFETUADA COM SUCESSO':
+            log.info(f"Alterando status do responsavel pelo aluno: {codigo_eol} para STATUS_ATUALIZADO_EOL")
+            responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol)
+            responsavel.status = responsavel.STATUS_ATUALIZADO_EOL
+            responsavel.save()
+        else:
+            log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
+            raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")

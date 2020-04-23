@@ -83,7 +83,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         cpf = responsavel.get('cpf', None)
         try:
             aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-            if aluno_obj.atualizado_na_escola and not user.codigo_escola:
+            if (aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
                 raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
             if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
@@ -102,6 +102,8 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
         log.info("Inicia envio de email.")
         responsavel_criado.enviar_email()
+        if responsavel_criado.status == 'ATUALIZADO_VALIDO' or responsavel_criado.status == 'PENDENCIA_RESOLVIDA':
+            responsavel_criado.salvar_no_eol()
         log.info("Aluno Criado/Atualizado.")
         return aluno
 
