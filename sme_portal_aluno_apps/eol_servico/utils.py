@@ -164,7 +164,7 @@ class EOLService(object):
             "tp_pessoa_responsavel": vinculo,
             "nm_responsavel": nome,
             "cd_cpf_responsavel": cpf,
-            "in_cpf_responsavel_confere": "N",
+            "in_cpf_responsavel_confere": "S",
             "cd_ddd_celular_responsavel": ddd_celular if ddd_celular else "",
             "nr_celular_responsavel": celular if celular else "",
             "cd_tipo_turno_celular": tipo_turno_celular,
