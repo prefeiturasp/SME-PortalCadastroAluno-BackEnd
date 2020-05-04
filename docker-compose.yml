@@ -22,7 +22,7 @@ services:
     container_name: alunos-backend
     build: .
     env_file: .env
-    command: "gunicorn config.wsgi:application --bind=0.0.0.0:8000 -w 8"
+    command: "gunicorn config.wsgi:application --bind=0.0.0.0:8000 --timeout 40000 -w 8"
     ports:
       - 8000:8000
     volumes:
