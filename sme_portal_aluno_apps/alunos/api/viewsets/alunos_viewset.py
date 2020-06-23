@@ -65,7 +65,14 @@ class AlunosViewSet(viewsets.ModelViewSet):
 
         if status_responsavel:
             status_reverse = dict((v, k) for k, v in Responsavel.STATUS_CHOICES)
-            queryset = queryset.filter(responsavel__status=status_reverse[status_responsavel])
+            if status_responsavel == 'Cadastro Atualizado e validado':
+                queryset = queryset.filter(
+                    responsavel__status__in=['ATUALIZADO_EOL', 'ATUALIZADO_VALIDO'],
+                    responsavel__pendencia_resolvida=False)
+            elif status_responsavel == 'Cadastro com Pendência Resolvida':
+                queryset = queryset.filter(responsavel__pendencia_resolvida=True)
+            else:
+                queryset = queryset.filter(responsavel__status=status_reverse[status_responsavel])
 
         return queryset.order_by('nome')
 
@@ -97,7 +104,6 @@ class AlunosViewSet(viewsets.ModelViewSet):
                 lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
                 alunos = [aluno for aluno in response if aluno['cd_aluno'] not in lista_codigo_eol]
                 return Response(alunos)
-                pass
         except EOLException as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except ReadTimeout:
@@ -139,7 +145,8 @@ class AlunosViewSet(viewsets.ModelViewSet):
                 cod_eol_escola = request.user.codigo_escola
                 response = EOLService.get_alunos_escola(cod_eol_escola)
                 lista_codigo_eol = request.user.get_alunos_nao_desatualizados()
-                quantidade_desatualizados = len(response) - len(lista_codigo_eol)
+                alunos = [aluno for aluno in response if aluno['cd_aluno'] not in lista_codigo_eol]
+                quantidade_desatualizados = len(alunos)
             codigo_eol_escola = request.query_params.get('cod_eol_escola', None)
             query_set = self.get_queryset_dashboard(codigo_eol_escola)
             response = {'results': self.dados_dashboard(
