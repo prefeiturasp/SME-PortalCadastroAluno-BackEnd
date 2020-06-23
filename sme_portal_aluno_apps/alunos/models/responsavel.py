@@ -4,6 +4,8 @@ from django.db import models
 
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from ..tasks import enviar_email_solicitacao_uniforme
+from ...eol_servico.tasks import atualizar_responsavel_no_eol
+
 from .validators import phone_validation, cpf_validation
 
 log = logging.getLogger(__name__)
@@ -106,6 +108,14 @@ class Responsavel(ModeloBase):
                     {'nome': nome_aluno, 'id': self.id})
         else:
             log.info('Não possui e-mail para envio')
+
+    def salvar_no_eol(self):
+        tipo_turno_celular = '1' if self.celular else ''
+        data_nascimento = str(self.data_nascimento).replace('-', '')
+        log.info(f"Atualizando informações do responsavel pelo aluno: {self.codigo_eol_aluno} no eol")
+        atualizar_responsavel_no_eol.delay(self.codigo_eol_aluno, str(self.vinculo), self.nome.upper(), self.cpf,
+                                           self.ddd_celular, self.celular, self.email, self.nome_mae.upper(),
+                                           data_nascimento, tipo_turno_celular)
 
     def __str__(self):
         return f"{self.nome} - Cod. EOL Aluno: {self.codigo_eol_aluno}"
