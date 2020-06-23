@@ -43,6 +43,7 @@ class AlunoAdmin(admin.ModelAdmin):
 
     list_display = ('nome', 'codigo_eol', 'data_nascimento', 'nome_responsavel',
                     'cpf_responsavel', 'celular')
+    readonly_fields = ('responsavel',)
     ordering = ('-alterado_em',)
     search_fields = ('codigo_eol', 'nome', 'responsavel__cpf', 'responsavel__nome')
     list_filter = ('responsavel__status',)
