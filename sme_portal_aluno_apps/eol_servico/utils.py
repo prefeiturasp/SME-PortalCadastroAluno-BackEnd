@@ -202,16 +202,14 @@ class EOLService(object):
 
     @classmethod
     def atualiza_escola_dre(cls, codigo_eol):
-        responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol)
         aluno = Aluno.objects.filter(codigo_eol=codigo_eol)
-        if responsavel.status == responsavel.STATUS_DESATUALIZADO:
-            response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
-                                    headers=cls.DEFAULT_HEADERS,
-                                    timeout=cls.DEFAULT_TIMEOUT)
-            if response.status_code == status.HTTP_200_OK:
-                results = response.json()['results']
-                if len(results) == 1:
-                    aluno.update(
-                        codigo_escola=results[0]['cd_escola'],
-                        codigo_dre=results[0]['cd_dre']
-                    )
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if len(results) == 1:
+                aluno.update(
+                    codigo_escola=results[0]['cd_escola'],
+                    codigo_dre=results[0]['cd_dre']
+                )
