@@ -1,6 +1,7 @@
 from django.contrib.postgres import fields
 from django_json_widget.widgets import JSONEditorWidget
 from django.contrib import admin
+from django.contrib.admin import SimpleListFilter
 
 from .models import (Aluno, Responsavel, LogConsultaEOL)
 from .forms import LogConsultaEOLForm
@@ -49,6 +50,22 @@ class AlunoAdmin(admin.ModelAdmin):
     list_filter = ('responsavel__status',)
 
 
+class TemCelularFilter(SimpleListFilter):
+    title = 'tem_celular'
+    parameter_name = 'celular'
+
+    def lookups(self, request, model_admin):
+        return [('Sim', 'Sim'), ('Não', 'Não')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'Sim':
+            return queryset.filter(celular__isnull=False)
+        elif self.value() == 'Não':
+            return queryset.filter(celular__isnull=True)
+        else:
+            return queryset
+
+
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
     inlines = [AlunoInLine]
@@ -91,7 +108,7 @@ class ResponsavelAdmin(admin.ModelAdmin):
                     'status', 'criado_em')
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome', 'codigo_eol_aluno')
-    list_filter = ('status',)
+    list_filter = ('status', TemCelularFilter)
     actions = ['enviar_emails', 'salvar_no_eol', export_as_xls]
 
 
