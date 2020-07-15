@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 def aluno_existe(codigo_eol):
     try:
         Aluno.objects.get(codigo_eol=codigo_eol)
+        EOLService.atualiza_escola_dre(codigo_eol)
         return True
     except Aluno.DoesNotExist:
         return False
@@ -46,6 +47,7 @@ class EOLService(object):
         log.info(f"Buscando informações do responsável do eol: {codigo_eol}")
         if aluno_existe(codigo_eol):
             log.info("Informações do aluno já existente na base.")
+
             return AlunoService.get_aluno_serializer(codigo_eol)
         else:
             log.info('Buscando informações na API EOL.')
@@ -197,3 +199,17 @@ class EOLService(object):
         else:
             log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
             raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")
+
+    @classmethod
+    def atualiza_escola_dre(cls, codigo_eol):
+        aluno = Aluno.objects.filter(codigo_eol=codigo_eol)
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if len(results) == 1:
+                aluno.update(
+                    codigo_escola=results[0]['cd_escola'],
+                    codigo_dre=results[0]['cd_dre']
+                )
