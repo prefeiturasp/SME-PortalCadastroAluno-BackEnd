@@ -93,6 +93,8 @@ class Responsavel(ModeloBase):
 
     pendencia_resolvida = models.BooleanField(default=False)
 
+    enviado_para_mercado_pago = models.BooleanField(default=False)
+
     def enviar_email(self):
         if self.email:
             nome_aluno = self.alunos.nome
