@@ -10,5 +10,5 @@ class Email(ModeloBase):
     body = models.TextField("Enviar Para", blank=True, null=True)
 
     class Meta:
-        verbose_name = "Email"
-        verbose_name_plural = "Emails"
+        verbose_name = "Log e-mail enviado (Pedido Uniforme)"
+        verbose_name_plural = "Log e-mails enviados (Pedido Uniforme)"
