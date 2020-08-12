@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import ListaPalavrasBloqueadas, Email, ListaEmail
+from .models import ListaPalavrasBloqueadas, Email, ListaEmail, EmailMercadoPago
 
 
 @admin.register(ListaPalavrasBloqueadas)
@@ -18,5 +18,14 @@ class EmailAdmin(admin.ModelAdmin):
 
 @admin.register(ListaEmail)
 class ListaEmailAdmin(admin.ModelAdmin):
+    list_display = ('email',)
+    search_fields = ('email',)
+
+
+@admin.register(EmailMercadoPago)
+class EmailMercadoPagoAdmin(admin.ModelAdmin):
+    def has_add_permission(self, *args, **kwargs):
+        return not EmailMercadoPago.objects.exists()
+
     list_display = ('email',)
     search_fields = ('email',)
