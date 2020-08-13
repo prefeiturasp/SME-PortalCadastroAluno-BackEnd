@@ -4,6 +4,7 @@ from smtplib import SMTPServerDisconnected
 import environ
 from celery import shared_task
 
+from config import celery_app
 from ..core.helpers.enviar_email import enviar_email_html, enviar_email
 
 env = environ.Env()
@@ -38,3 +39,11 @@ def enviar_email_simples(assunto, mensagem, enviar_para):
         mensagem=mensagem,
         enviar_para=enviar_para
     )
+
+
+@celery_app.task()
+def gerar_arquivo_de_novos_pedidos():
+    from .helpers.gerar_csv import gerar_csv_mp
+    log.info('Iniciando geração de arquivo csv de novos pedidos de uniforme.')
+    gerar_csv_mp()
+    log.info('Arquivo gerado.')
