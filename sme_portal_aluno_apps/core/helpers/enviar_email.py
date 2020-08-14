@@ -6,7 +6,7 @@ from django.core.mail import send_mail, EmailMessage
 from django.core.mail.backends.smtp import EmailBackend
 from django.template.loader import render_to_string
 
-from sme_portal_aluno_apps.core.models import Email, ListaEmail
+from sme_portal_aluno_apps.core.models import Email, ListaEmail, EmailMercadoPago
 
 logger = logging.getLogger(__name__)
 
@@ -66,5 +66,21 @@ def enviar_email_html(assunto, template, contexto, enviar_para, html_salvo=None,
             email_sme.enviado = True
             email_sme.save()
 
+    except Exception as err:
+        logger.error(str(err))
+
+
+def enviar_email_mp(assunto, mensagem, path):
+    email_mp = EmailMercadoPago.objects.first()
+    try:
+        config = DynamicEmailConfiguration.get_solo()
+        msg = EmailMessage(
+            subject=assunto, body=mensagem,
+            from_email=config.from_email or None,
+            bcc=(email_mp.email,),
+            connection=EmailBackend(**config.__dict__)
+        )
+        msg.attach_file(path)
+        msg.send()
     except Exception as err:
         logger.error(str(err))

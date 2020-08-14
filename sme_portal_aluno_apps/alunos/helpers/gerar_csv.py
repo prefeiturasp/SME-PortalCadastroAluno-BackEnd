@@ -1,5 +1,6 @@
 import logging
 import csv
+import zipfile
 
 from os.path import join
 from django.db.models import Value as V
@@ -7,6 +8,7 @@ from django.db.models.functions import Concat
 from djqscsv import write_csv, generate_filename
 
 from ..models.responsavel import Responsavel
+from ...core.helpers.enviar_email import enviar_email_mp
 from config.settings.base import MEDIA_ROOT
 
 log = logging.getLogger(__name__)
@@ -22,6 +24,7 @@ def gerar_csv_mp():
 
     nome_arquivo = generate_filename(qs, append_datestamp=True)
     path = join(MEDIA_ROOT, nome_arquivo)
+    zip_obj = zipfile.ZipFile(path.replace('.csv', '.zip'), 'w')
 
     log.info('Inicia geração de arquivo CSV.')
     with open(path, 'wb') as csv_file:
@@ -37,6 +40,8 @@ def gerar_csv_mp():
     reader = csv.reader(file)
     qtd_linhas_arquivo = len(list(reader)) - 1  # qtd de linhas menos o cabeçario
     log.info(f'Arquivo gerado: {nome_arquivo} - Quantidade de linhas: {qtd_linhas_arquivo}')
+    log.info('Comprimindo arquivo')
+    zip_obj.write(path, compress_type=zipfile.ZIP_DEFLATED)
 
     if qtd_linhas_qs == qtd_linhas_arquivo:
         log.info('Inicia Atualização dos registros para: enviado_para_mercado_pago = True')
@@ -46,6 +51,12 @@ def gerar_csv_mp():
             obj_responsavel.save()
 
         # TODO: Chamar aqui a funcão de enviar e-mail passando o arquivo por parametro.
+        log.info('Inicia envio de e-mail para o Mercado Pago')
+        enviar_email_mp(
+            assunto='Lista de novos beneficiarios',
+            mensagem='E-mail automatico. Não responda.',
+            path=join(path.replace('.csv', '.zip'))
+        )
     else:
         log.info('Divergencia no número de linhas da query com o número de linhas do arquivo gerado. '
                  'Registros não foram atualizados e e-mail não foi enviado.')
