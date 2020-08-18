@@ -1,6 +1,7 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
-from .models import ListaPalavrasBloqueadas, Email, ListaEmail, EmailMercadoPago
+from .models import ListaPalavrasBloqueadas, Email, ListaEmail, EmailMercadoPago, LogEmailMercadoPago
 
 
 @admin.register(ListaPalavrasBloqueadas)
@@ -14,6 +15,18 @@ class EmailAdmin(admin.ModelAdmin):
     list_display = ('enviar_para', 'criado_em', 'assunto', 'enviado')
     search_fields = ('enviar_para', 'criado_em', 'enviado')
     list_filter = ('enviado',)
+
+
+@admin.register(LogEmailMercadoPago)
+class LogEmailMercadoPagoAdmin(admin.ModelAdmin):
+
+    def csv_url(selfself, obj):
+        return format_html('<a  href="{0}" >{0}</a>&nbsp;', obj.csv)
+
+    list_display = ('criado_em', 'enviar_para', 'assunto', 'enviado', 'csv_url')
+    search_fields = ('assunto', 'criado_em')
+    list_filter = ('enviado',)
+    ordering = ('-criado_em',)
 
 
 @admin.register(ListaEmail)

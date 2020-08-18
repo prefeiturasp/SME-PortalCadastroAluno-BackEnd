@@ -63,7 +63,7 @@ def gerar_csv_mp():
             mensagem=(f'E-mail automatico. Não responda. ' +
                       f'Clique neste link para fazer download do csv: ' +
                       f'{url(nome_arquivo)}'),
-            path=join(path.replace('.csv', '.zip'))
+            csv=url(nome_arquivo)
         )
     else:
         # TODO: Verificar uma forma de guardar essa informação no banco
