@@ -95,6 +95,8 @@ class Responsavel(ModeloBase):
 
     enviado_para_mercado_pago = models.BooleanField(default=False)
 
+    data_envio_mercado_pago = models.DateField("Data de Envio Mercado Pago", blank=True, null=True)
+
     def enviar_email(self):
         if self.email:
             nome_aluno = self.alunos.nome

@@ -53,6 +53,7 @@ def gerar_csv_mp():
         for responsavel in qs:
             obj_responsavel = Responsavel.objects.get(codigo_eol_aluno=responsavel.get('codigo_eol_aluno'))
             obj_responsavel.enviado_para_mercado_pago = True
+            obj_responsavel.data_envio_mercado_pago = date.today()
             obj_responsavel.save()
 
         log.info('Inicia envio de e-mail para o MP')
