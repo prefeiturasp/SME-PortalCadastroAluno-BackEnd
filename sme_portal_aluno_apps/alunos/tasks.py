@@ -42,8 +42,8 @@ def enviar_email_simples(assunto, mensagem, enviar_para):
 
 
 @celery_app.task()
-def gerar_arquivo_de_novos_pedidos():
+def processar_novos_pedidos_mp():
     from .helpers.gerar_csv import gerar_csv_mp
-    log.info('Iniciando geração de arquivo csv de novos pedidos de uniforme.')
+    log.info('Iniciando processo de geração de arquivo e envio por e-mail ao MP.')
     gerar_csv_mp()
-    log.info('Arquivo gerado.')
+    log.info('Processo finalizado.')
