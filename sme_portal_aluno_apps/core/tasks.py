@@ -1,11 +1,13 @@
 from datetime import timedelta
+from smtplib import SMTPServerDisconnected
 
 from celery.schedules import crontab
 from celery.task import periodic_task
+from config import celery_app
 
 from sme_portal_aluno_apps.alunos.models import Responsavel
-from sme_portal_aluno_apps.core.helpers.enviar_email import enviar_email_html
-from sme_portal_aluno_apps.core.models import Email
+from sme_portal_aluno_apps.core.helpers.enviar_email import enviar_email_html, enviar_email_mp
+from sme_portal_aluno_apps.core.models import Email, LogEmailMercadoPago
 
 
 # @periodic_task(run_every=crontab(hour=4, minute=0))
@@ -29,3 +31,15 @@ def enviar_emails_cadastros_divergentes():
     responsaveis = Responsavel.objects.filter(status="DIVERGENTE", email__isnull=False)
     for responsavel in responsaveis:
         responsavel.enviar_email()
+
+
+@celery_app.task(
+    autoretry_for=(SMTPServerDisconnected,),
+    retry_backoff=2,
+    retry_kwargs={'max_retries': 8},
+)
+def enviar_emails_engasgados_mp():
+    emails = LogEmailMercadoPago.objects.filter(enviar_para__isnull=False, enviado=False)
+
+    for email in emails:
+        enviar_email_mp(assunto=email.assunto, mensagem=email.mensagem, csv=email.csv)

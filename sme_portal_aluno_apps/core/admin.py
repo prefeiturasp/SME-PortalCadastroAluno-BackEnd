@@ -20,13 +20,15 @@ class EmailAdmin(admin.ModelAdmin):
 @admin.register(LogEmailMercadoPago)
 class LogEmailMercadoPagoAdmin(admin.ModelAdmin):
 
-    def csv_url(selfself, obj):
+    def csv_url(self, obj):
         return format_html('<a  href="{0}" >{0}</a>&nbsp;', obj.csv)
 
     list_display = ('criado_em', 'enviar_para', 'assunto', 'enviado', 'csv_url')
     search_fields = ('assunto', 'criado_em')
     list_filter = ('enviado',)
     ordering = ('-criado_em',)
+    readonly_fields = ('enviar_para', 'assunto', 'mensagem', 'csv_url', )
+    exclude = ('csv',)
 
 
 @admin.register(ListaEmail)
