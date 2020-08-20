@@ -83,8 +83,12 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         cpf = responsavel.get('cpf', None)
         try:
             aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-            if (aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
-                raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
+            if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
+                raise ValidationError('Solicitação enviada para o mercado pago.')
+            else:
+                if (aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
+                    raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
+
             responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
             if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
                 responsavel['pendencia_resolvida'] = True
