@@ -41,7 +41,7 @@ def enviar_email_simples(assunto, mensagem, enviar_para):
     )
 
 
-@celery_app.task()
+@celery_app.task(soft_time_limit=1000, time_limit=1200)
 def processar_novos_pedidos_mp():
     from .helpers.gerar_csv import gerar_csv_mp
     log.info('Iniciando processo de geração de arquivo e envio por e-mail ao MP.')
