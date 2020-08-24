@@ -67,6 +67,6 @@ def gerar_csv_mp():
         )
     else:
         # TODO: Verificar uma forma de guardar essa informação no banco
-        log.info('Divergencia no número de linhas da query com o número de linhas do arquivo gerado '
-                 'ou query sem registro. '
+        log.info(f'Divergencia no número de linhas da query ({qtd_linhas_qs}) com o número de '
+                 f'linhas do arquivo gerado ({qtd_linhas_arquivo}) ou query sem registro. '
                  'Registros não foram atualizados e e-mail não foi enviado.')
