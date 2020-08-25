@@ -56,8 +56,8 @@ def gerar_csv_mp():
 
             log.info('Inicia envio de e-mail para o MP')
             enviar_email_mp(
-                assunto=f'Lista de novos beneficiarios - {date.today()}',
-                mensagem=(f'E-mail automatico. Não responda. ' +
+                assunto=f'Lista de novos beneficiarios - {hoje}',
+                mensagem=(f'E-mail automático. Não responda. ' +
                           f'Clique neste link para fazer download do csv: ' +
                           f'{url(nome_arquivo)}'),
                 csv=url(nome_arquivo)

@@ -21,7 +21,7 @@ class EmailAdmin(admin.ModelAdmin):
 class LogEmailMercadoPagoAdmin(admin.ModelAdmin):
 
     def csv_url(self, obj):
-        return format_html('<a  href="{0}" >{0}</a>&nbsp;', obj.csv)
+        return format_html('<a href="{0}" >{0}</a>&nbsp;', obj.csv)
 
     list_display = ('criado_em', 'enviar_para', 'assunto', 'enviado', 'csv_url')
     search_fields = ('assunto', 'criado_em')
