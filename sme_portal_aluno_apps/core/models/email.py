@@ -10,5 +10,17 @@ class Email(ModeloBase):
     body = models.TextField("Enviar Para", blank=True, null=True)
 
     class Meta:
-        verbose_name = "Email"
-        verbose_name_plural = "Emails"
+        verbose_name = "Log e-mail enviado (Pedido Uniforme)"
+        verbose_name_plural = "Log e-mails enviados (Pedido Uniforme)"
+
+
+class LogEmailMercadoPago(ModeloBase):
+    enviado = models.BooleanField("Enviado?", default=False)
+    enviar_para = models.CharField("Enviar Para", max_length=255, blank=True, null=True)
+    assunto = models.CharField("Assunto", max_length=255, blank=True, null=True)
+    mensagem = models.TextField("Mensagem", blank=True, null=True)
+    csv = models.CharField("Arquivo CSV", max_length=255, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Log e-mail enviado (Mercado Pago)"
+        verbose_name_plural = "Log e-mails enviados (Mercado Pago)"

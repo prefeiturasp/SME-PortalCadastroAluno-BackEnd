@@ -7,5 +7,5 @@ class ListaEmail(ModeloBase):
     email = models.CharField('Email', max_length=255)
 
     class Meta:
-        verbose_name = "Lista de Email"
-        verbose_name_plural = "Lista de Emails"
+        verbose_name = "Lista de Email (SME)"
+        verbose_name_plural = "Lista de Emails (SME)"
