@@ -1,0 +1,51 @@
+from django.core import validators
+from django.db import models
+from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
+from .validators import cpf_validation
+
+
+class RetornoMP(ModeloBase):
+    # Status Choice
+    STATUS_MULTIPLOS_EMAILS = 5
+    STATUS_MULTIPLOS_CPFS_MESMO_EOL = 7
+    STATUS_CPF_BLOQUEADO = 8
+    STATUS_CREDITADO = 9
+    STATUS_EMAIL_INVALIDO = 10
+    STATUS_CPF_INVALIDO = 11
+
+    STATUS_NOMES = {
+        STATUS_MULTIPLOS_EMAILS: 'Responsável com mais de um e-mail informado',
+        STATUS_MULTIPLOS_CPFS_MESMO_EOL: 'Crédito já liberado para outro CPF',
+        STATUS_CPF_BLOQUEADO: 'CPF Bloqueado',
+        STATUS_CREDITADO: 'Crédito Concedido',
+        STATUS_EMAIL_INVALIDO: 'E-mail Inválido',
+        STATUS_CPF_INVALIDO: 'CPF Inválido',
+    }
+
+    STATUS_CHOICES = (
+        (STATUS_MULTIPLOS_EMAILS, STATUS_NOMES[STATUS_MULTIPLOS_EMAILS]),
+        (STATUS_MULTIPLOS_CPFS_MESMO_EOL, STATUS_NOMES[STATUS_MULTIPLOS_CPFS_MESMO_EOL]),
+        (STATUS_CPF_BLOQUEADO, STATUS_NOMES[STATUS_CPF_BLOQUEADO]),
+        (STATUS_CREDITADO, STATUS_NOMES[STATUS_CREDITADO]),
+        (STATUS_EMAIL_INVALIDO, STATUS_NOMES[STATUS_EMAIL_INVALIDO]),
+        (STATUS_CPF_INVALIDO, STATUS_NOMES[STATUS_CPF_INVALIDO]),
+    )
+
+    codigo_eol = models.CharField(
+        "Código EOL do Aluno", max_length=7, validators=[validators.MinLengthValidator(7)])
+    cpf = models.CharField(
+        "CPF", max_length=11, blank=True, null=True, validators=[cpf_validation])
+    status = models.IntegerField(
+        'Status',
+        choices=STATUS_CHOICES
+    )
+    mensagem = models.CharField("Mensagem", max_length=255, blank=True, null=True)
+    data_ocorrencia = models.DateField("Data de Ocorrencia no MP", blank=True, null=True)
+    registro_processado = models.BooleanField("Registro Processado?", default=False)
+
+    def __str__(self):
+        return f'{self.cpf} - {self.codigo_eol}'
+
+    class Meta:
+        verbose_name = "Retorno do Mercado Pago"
+        verbose_name_plural = "Retornos do Mercado Pago"
