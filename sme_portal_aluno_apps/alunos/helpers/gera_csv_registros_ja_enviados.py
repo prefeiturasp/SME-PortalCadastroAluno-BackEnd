@@ -6,7 +6,7 @@ import zipfile
 from os.path import join
 from django.db.models import Value as V
 from django.db.models.functions import Concat
-from djqscsv import write_csv, generate_filename
+from djqscsv import write_csv
 from os.path import basename
 from datetime import date
 
@@ -19,16 +19,16 @@ env = environ.Env()
 log = logging.getLogger(__name__)
 
 
-def gerar_csv_mp():
+def gerar_csv_completo_mp():
     try:
-        queryset = Responsavel.objects.filter(status=Responsavel.STATUS_ATUALIZADO_EOL, enviado_para_mercado_pago=False)
+        queryset = Responsavel.objects.filter(enviado_para_mercado_pago=True)
         queryset_to_csv = queryset.annotate(get_celular=Concat('ddd_celular', V(' '), 'celular')).values(
             'nome', 'alunos__nome', 'codigo_eol_aluno', 'cpf', 'email', 'get_celular', 'vinculo', 'data_nascimento',
             'nome_mae', 'status', 'nao_possui_celular', 'nao_possui_email'
         )
         qtd_linhas_qs = queryset_to_csv.count()
-
-        nome_arquivo = generate_filename(queryset_to_csv, append_datestamp=True)
+        hoje = date.today()
+        nome_arquivo = f'responsavel_export_completo_ate_{hoje}.csv'
         path = join(MEDIA_ROOT, nome_arquivo)
         zip_obj = zipfile.ZipFile(path.replace('.csv', '.zip'), 'w')
 
@@ -45,18 +45,14 @@ def gerar_csv_mp():
         file = open(path)
         reader = csv.reader(file)
         qtd_linhas_arquivo = len(list(reader)) - 1  # qtd de linhas menos o cabeçario
-        log.info(f'CSV gerado: {nome_arquivo} - Quantidade de linhas: {qtd_linhas_arquivo}')
+        log.info(f'CSV gerado: Quantidade de linhas: {qtd_linhas_arquivo}')
         log.info('Comprimindo arquivo')
         zip_obj.write(path, basename(path))
 
         if qtd_linhas_qs == qtd_linhas_arquivo and qtd_linhas_qs > 0:
-            hoje = date.today()
-            log.info('Inicia Atualização dos registros para enviados para mercado pago')
-            queryset.update(enviado_para_mercado_pago=True, data_envio_mercado_pago=hoje)
-
             log.info('Inicia envio de e-mail para o MP')
             enviar_email_mp(
-                assunto=f'Lista de novos beneficiarios - {hoje}',
+                assunto=f'Lista completa novos beneficiarios - {hoje}',
                 mensagem=(f'E-mail automático. Não responda. ' +
                           f'Clique neste link para fazer download do csv: ' +
                           f'{url(nome_arquivo)}'),
