@@ -27,8 +27,7 @@ def gerar_csv_completo_mp():
             'nome_mae', 'status', 'nao_possui_celular', 'nao_possui_email'
         )
         qtd_linhas_qs = queryset_to_csv.count()
-        data = date.today()
-        hoje = data.strftime("%d-%m-%Y")
+        hoje = date.today()
         nome_arquivo = f'responsavel_export_completo_ate_{hoje}.csv'
         path = join(MEDIA_ROOT, nome_arquivo)
         zip_obj = zipfile.ZipFile(path.replace('.csv', '.zip'), 'w')

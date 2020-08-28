@@ -50,8 +50,7 @@ def gerar_csv_mp():
         zip_obj.write(path, basename(path))
 
         if qtd_linhas_qs == qtd_linhas_arquivo and qtd_linhas_qs > 0:
-            data = date.today()
-            hoje = data.strftime("%d-%m-%Y")
+            hoje = date.today()
             log.info('Inicia Atualização dos registros para enviados para mercado pago')
             queryset.update(enviado_para_mercado_pago=True, data_envio_mercado_pago=hoje)
 
