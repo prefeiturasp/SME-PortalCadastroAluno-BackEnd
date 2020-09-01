@@ -45,6 +45,18 @@ def aluno(responsavel):
 
 
 @pytest.fixture
+def retorno():
+    return baker.make(
+        'RetornoMP',
+        codigo_eol='3872240',
+        cpf='00000000000',
+        mensagem='Texto explicativo ao usuário sobre o erro',
+        data_ocorrencia='2010-06-12',
+        status=5
+    )
+
+
+@pytest.fixture
 def payload():
     return {
         "codigo_eol": "3872240",
@@ -81,4 +93,15 @@ def mocked_request_api_eol():
         "nome": "YASMIN LEITE DOS SANTOS SIMOES",
         "codigo_escola": "094277",
         "codigo_dre": "108400",
+    }
+
+
+@pytest.fixture
+def payload_retorno_mp():
+    return {
+        "codigo_eol": "0000002",
+        "cpf": "00000000000",
+        "status": 5,
+        "mensagem": "texto msg",
+        "data_ocorrencia": "2016-02-11"
     }
