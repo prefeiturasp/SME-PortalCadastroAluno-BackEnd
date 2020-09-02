@@ -1,7 +1,11 @@
 from django.core import validators
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from .validators import cpf_validation
+
+from sme_portal_aluno_apps.alunos.helpers.processamento_retorno_mp import ProcessarRetornoService
 
 
 class RetornoMP(ModeloBase):
@@ -46,3 +50,12 @@ class RetornoMP(ModeloBase):
     class Meta:
         verbose_name = "Retorno do Mercado Pago"
         verbose_name_plural = "Retornos do Mercado Pago"
+
+
+@receiver(post_save, sender=RetornoMP)
+def retorno_post_save(instance, created, **kwargs):
+    if created and instance:
+        if instance.status == RetornoMP.STATUS_CREDITADO:
+            ProcessarRetornoService.processar_credito_concedido(instance.codigo_eol)
+            instance.registro_processado = True
+            instance.save()

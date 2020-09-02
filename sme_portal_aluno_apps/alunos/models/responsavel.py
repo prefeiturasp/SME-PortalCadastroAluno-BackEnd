@@ -18,6 +18,7 @@ class Responsavel(ModeloBase):
     STATUS_DIVERGENTE = 'DIVERGENTE'
     STATUS_DESATUALIZADO = 'DESATUALIZADO'
     STATUS_PENDENCIA_RESOLVIDA = 'PENDENCIA_RESOLVIDA'
+    STATUS_CREDITO_CONCEDIDO = 'CREDITO_CONCEDIDO'
 
     STATUS_NOMES = {
         STATUS_ATUALIZADO_EOL: 'Cadastro Atualizado no EOL',
@@ -25,6 +26,7 @@ class Responsavel(ModeloBase):
         STATUS_DIVERGENTE: 'Cadastro Divergente',
         STATUS_DESATUALIZADO: 'Cadastro Desatualizado',
         STATUS_PENDENCIA_RESOLVIDA: 'Cadastro com Pendência Resolvida',
+        STATUS_CREDITO_CONCEDIDO: 'Cadastro com Crédito Concedido',
     }
 
     STATUS_CHOICES = (
@@ -33,6 +35,7 @@ class Responsavel(ModeloBase):
         (STATUS_DIVERGENTE, STATUS_NOMES[STATUS_DIVERGENTE]),
         (STATUS_DESATUALIZADO, STATUS_NOMES[STATUS_DESATUALIZADO]),
         (STATUS_PENDENCIA_RESOLVIDA, STATUS_NOMES[STATUS_PENDENCIA_RESOLVIDA]),
+        (STATUS_CREDITO_CONCEDIDO, STATUS_NOMES[STATUS_CREDITO_CONCEDIDO]),
     )
 
     # Vinculo Choice
