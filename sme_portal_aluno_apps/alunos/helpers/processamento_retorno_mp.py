@@ -2,6 +2,7 @@ import logging
 
 from ..models.responsavel import Responsavel
 
+
 log = logging.getLogger(__name__)
 
 
@@ -18,3 +19,14 @@ class ProcessarRetornoService(object):
 
         except Responsavel.DoesNotExist:
             log.info(f"Codigo eol informado: {codigo_eol}, não possui responsavel.")
+
+    @classmethod
+    def processar_todos_credito_consedido(cls):
+        from ..models.retorno_mp import RetornoMP
+        try:
+            retornos = RetornoMP.objects.filter(
+                registro_processado=False, status=RetornoMP.STATUS_CREDITADO).values_list('codigo_eol', flat=True)
+            Responsavel.objects.filter(codigo_eol_aluno__in=retornos).update(status=Responsavel.STATUS_CREDITO_CONCEDIDO)
+            retornos.update(registro_processado=True)
+        except Exception as e:
+            log.error('Falha no processamento: ' + str(e))
