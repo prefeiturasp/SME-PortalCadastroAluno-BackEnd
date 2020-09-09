@@ -27,16 +27,26 @@ class AlunosViewSet(viewsets.ModelViewSet):
         desatualizados = quantidade_desatualizados
         pendencia_resolvida = query_set.filter(responsavel__pendencia_resolvida=True).count()
         divergente = query_set.filter(responsavel__status='DIVERGENTE').count()
+        cpf_invalido = query_set.filter(responsavel__status='CPF_INVALIDO').count()
+        email_invalido = query_set.filter(responsavel__status='EMAIL_INVALIDO').count()
+        multiplos_emails = query_set.filter(responsavel__status='MULTIPLOS_EMAILS').count()
+        inconsistencias_resolvidas = query_set.filter(responsavel__status='INCONSISTENCIA_RESOLVIDA').count()
+        creditos_concedidos = query_set.filter(responsavel__status='CREDITO_CONCEDIDO').count()
         sumario = {
-            'Cadastros Validados': {
-                'alunos online': alunos_online,
-                'alunos escola': alunos_escola,
+            'cadastros_validados': {
+                'alunos_online': alunos_online,
+                'alunos_escola': alunos_escola,
                 'total': alunos_online + alunos_escola,
             },
-            'Cadastros desatualizados': desatualizados,
-            'Cadastros com pendências resolvidas': pendencia_resolvida,
-            'Cadastros divergentes': divergente,
-            'total alunos': query_set.count() + quantidade_desatualizados,
+            'cadastros_desatualizados': desatualizados,
+            'cadastros_com_pendencias_resolvidas': pendencia_resolvida,
+            'cadastros_divergentes': divergente,
+            'total_alunos': query_set.count() + quantidade_desatualizados,
+            'cpf_invalido': cpf_invalido,
+            'email_invalido': email_invalido,
+            'multiplos_emails': multiplos_emails,
+            'inconsistencias_resolvidas': inconsistencias_resolvidas,
+            'creditos_concedidos': creditos_concedidos,
         }
 
         return sumario
@@ -152,7 +162,7 @@ class AlunosViewSet(viewsets.ModelViewSet):
             response = {'results': self.dados_dashboard(
                 query_set=query_set, quantidade_desatualizados=quantidade_desatualizados
             )}
-            return Response(response)
+            return Response(response, status=status.HTTP_200_OK)
         except ReadTimeout:
             return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
         except ConnectTimeout:
