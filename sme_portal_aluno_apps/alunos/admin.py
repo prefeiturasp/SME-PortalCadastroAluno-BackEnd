@@ -126,8 +126,15 @@ class LogConsultaEOLAdmin(admin.ModelAdmin):
 
 @admin.register(RetornoMP)
 class RetornoMPAdmin(admin.ModelAdmin):
-    list_display = ('cpf', 'codigo_eol', 'status', 'data_ocorrencia', 'mensagem', 'alterado_em', 'registro_processado')
+    def get_nome_responsavel(self, obj):
+        if obj.responsavel:
+            return obj.responsavel.nome
+        else:
+            return '-'
+    get_nome_responsavel.short_description = 'Nome Responsável'
+
+    list_display = ('get_nome_responsavel', 'cpf', 'codigo_eol', 'status', 'data_ocorrencia', 'mensagem', 'alterado_em', 'registro_processado')
     search_fields = ('codigo_eol', 'cpf')
-    readonly_fields = ('cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
+    readonly_fields = ('responsavel', 'cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
                        'registro_processado')
     list_filter = ('registro_processado', 'status')

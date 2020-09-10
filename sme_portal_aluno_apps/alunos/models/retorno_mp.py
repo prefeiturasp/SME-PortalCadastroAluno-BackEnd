@@ -2,6 +2,8 @@ from django.core import validators
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
+from sme_portal_aluno_apps.alunos.models import Responsavel
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from .validators import cpf_validation
 
@@ -43,6 +45,8 @@ class RetornoMP(ModeloBase):
     mensagem = models.CharField("Mensagem", max_length=255, blank=True, null=True)
     data_ocorrencia = models.DateField("Data de Ocorrencia no MP", blank=True, null=True)
     registro_processado = models.BooleanField("Registro Processado?", default=False)
+    responsavel = models.ForeignKey(Responsavel, on_delete=models.PROTECT,
+                                    blank=True, null=True, related_name='retornos')
 
     def __str__(self):
         return f'{self.cpf} - {self.codigo_eol}'
