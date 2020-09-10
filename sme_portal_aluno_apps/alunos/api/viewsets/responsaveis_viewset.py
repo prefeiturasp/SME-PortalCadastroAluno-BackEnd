@@ -25,9 +25,7 @@ class ResponsaveisViewSet(viewsets.ModelViewSet):
         queryset = queryset.filter(status__in=['CPF_INVALIDO', 'EMAIL_INVALIDO', 'MULTIPLOS_EMAILS'])
 
         if codigo_eol:
-            queryset = queryset.filter(codigo_eol=codigo_eol)
-            if not queryset and user.codigo_escola:
-                EOLService.cria_aluno_desatualizado(codigo_eol=codigo_eol)
+            queryset = queryset.filter(alunos__codigo_eol=codigo_eol)
 
         if user.codigo_escola:
             queryset = queryset.filter(alunos__codigo_escola=user.codigo_escola)
