@@ -46,6 +46,7 @@ class ResponsavelSerializerComCPFEOL(serializers.ModelSerializer):
 class ResponsavelListSerializer(serializers.ModelSerializer):
     codigo_eol = serializers.SerializerMethodField()
     status = serializers.SerializerMethodField()
+    nome_aluno = serializers.SerializerMethodField()
 
     def get_codigo_eol(self, obj):
         return obj.alunos.codigo_eol
@@ -53,9 +54,12 @@ class ResponsavelListSerializer(serializers.ModelSerializer):
     def get_status(self, obj):
         return obj.get_status_display()
 
+    def get_nome_aluno(self, obj):
+        return obj.alunos.nome
+
     class Meta:
         model = Responsavel
-        fields = ('nome', 'cpf', 'codigo_eol', 'status')
+        fields = ('nome', 'cpf', 'codigo_eol', 'status', 'nome_aluno')
 
 
 class ResponsavelCreateSerializer(serializers.ModelSerializer):
