@@ -60,6 +60,18 @@ class RetornoMP(ModeloBase):
 def retorno_post_save(instance, created, **kwargs):
     if created and instance:
         if instance.status == RetornoMP.STATUS_CREDITADO:
-            ProcessarRetornoService.processar_credito_concedido(instance.codigo_eol)
+            Responsavel.objects.filter(id=instance.responsavel.id).update(status=Responsavel.STATUS_CREDITO_CONCEDIDO)
+            instance.registro_processado = True
+            instance.save()
+        elif instance.status == RetornoMP.STATUS_CPF_INVALIDO:
+            ProcessarRetornoService.cpf_invalido(instance.responsavel.id)
+            instance.registro_processado = True
+            instance.save()
+        elif instance.status == RetornoMP.STATUS_EMAIL_INVALIDO:
+            Responsavel.objects.filter(id=instance.responsavel.id).update(status=Responsavel.STATUS_EMAIL_INVALIDO)
+            instance.registro_processado = True
+            instance.save()
+        elif instance.status == RetornoMP.STATUS_MULTIPLOS_EMAILS:
+            ProcessarRetornoService.multiplos_emails(instance.responsavel.id)
             instance.registro_processado = True
             instance.save()
