@@ -65,7 +65,8 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         try:
             informacoes_aluno = EOLService.get_informacoes_responsavel(validated_data['codigo_eol'])
             validated_data['nome'] = informacoes_aluno.get('nome') or informacoes_aluno.get('nm_aluno')
-            validated_data['codigo_escola'] = informacoes_aluno.get('codigo_escola') or informacoes_aluno.get('cd_escola')
+            validated_data['codigo_escola'] = informacoes_aluno.get('codigo_escola') or informacoes_aluno.get(
+                'cd_escola')
             validated_data['codigo_dre'] = informacoes_aluno.get('codigo_dre') or informacoes_aluno.get('cd_dre')
             return validated_data
         except EOLException as e:
@@ -74,42 +75,86 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
+        inconsistencia_resolvida = validated_data.get('inconsistencia_resolvida', False)
         user = self.context['request'].user
-        if atualizado_na_escola:
-            validated_data['servidor'] = user.username
-        log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
-        self.atualiza_payload(validated_data)
         responsavel = validated_data.pop('responsavel')
         cpf = responsavel.get('cpf', None)
-        try:
-            aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-            if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
-                raise ValidationError('Solicitação enviada para o mercado pago.')
-            else:
-                if (aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
+        if inconsistencia_resolvida:
+
+            if atualizado_na_escola:
+                validated_data['servidor'] = user.username
+            log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
+            self.atualiza_payload(validated_data)
+            # responsavel = validated_data.pop('responsavel')
+            # cpf = responsavel.get('cpf', None)
+            try:
+                aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+                if (
+                    aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
                     raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
 
-            responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
-            if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
-                responsavel['pendencia_resolvida'] = True
-            responsavel_criado, created = Responsavel.objects.update_or_create(
-                codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
-            log.info(f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
-        except Aluno.DoesNotExist:
-            responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
-            if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
-                responsavel['pendencia_resolvida'] = True
-            responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
-            validated_data['responsavel'] = responsavel_criado
-            log.info(f"Aluno criado. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
-        codigo = validated_data.pop('codigo_eol')
-        aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
-        log.info("Inicia envio de email.")
-        responsavel_criado.enviar_email()
-        if responsavel_criado.status == 'ATUALIZADO_VALIDO' or responsavel_criado.status == 'PENDENCIA_RESOLVIDA':
-            responsavel_criado.salvar_no_eol()
-        log.info("Aluno Criado/Atualizado.")
-        return aluno
+                responsavel['status'] = Responsavel.STATUS_INCONSISTENCIA_RESOLVIDA
+                responsavel['enviado_para_mercado_pago'] = False
+                #TODO definir nome da variavel que vai identificar o cadastro_atualizado True e chamar aqui
+                responsavel_criado, created = Responsavel.objects.update_or_create(
+                    codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
+                log.info(
+                    f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
+            except Aluno.DoesNotExist:
+                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
+                    responsavel['pendencia_resolvida'] = True
+                responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
+                validated_data['responsavel'] = responsavel_criado
+                log.info(
+                    f"Aluno criado. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
+            codigo = validated_data.pop('codigo_eol')
+            aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
+            log.info("Inicia envio de email.")
+            responsavel_criado.enviar_email()
+            if responsavel_criado.status == 'ATUALIZADO_VALIDO' or responsavel_criado.status == 'PENDENCIA_RESOLVIDA':
+                responsavel_criado.salvar_no_eol()
+            log.info("Aluno Criado/Atualizado.")
+            return aluno
+        else:
+            if atualizado_na_escola:
+                validated_data['servidor'] = user.username
+            log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
+            self.atualiza_payload(validated_data)
+            responsavel = validated_data.pop('responsavel')
+            cpf = responsavel.get('cpf', None)
+            try:
+                aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+                if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
+                    raise ValidationError('Solicitação enviada para o mercado pago.')
+                else:
+                    if (
+                        aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
+                        raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
+
+                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
+                    responsavel['pendencia_resolvida'] = True
+                responsavel_criado, created = Responsavel.objects.update_or_create(
+                    codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
+                log.info(
+                    f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
+            except Aluno.DoesNotExist:
+                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
+                    responsavel['pendencia_resolvida'] = True
+                responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
+                validated_data['responsavel'] = responsavel_criado
+                log.info(
+                    f"Aluno criado. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
+            codigo = validated_data.pop('codigo_eol')
+            aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
+            log.info("Inicia envio de email.")
+            responsavel_criado.enviar_email()
+            if responsavel_criado.status == 'ATUALIZADO_VALIDO' or responsavel_criado.status == 'PENDENCIA_RESOLVIDA':
+                responsavel_criado.salvar_no_eol()
+            log.info("Aluno Criado/Atualizado.")
+            return aluno
 
     class Meta:
         model = Aluno
