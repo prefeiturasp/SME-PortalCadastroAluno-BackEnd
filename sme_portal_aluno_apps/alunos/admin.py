@@ -135,6 +135,6 @@ class RetornoMPAdmin(admin.ModelAdmin):
 
     list_display = ('get_nome_responsavel', 'cpf', 'codigo_eol', 'status', 'data_ocorrencia', 'mensagem', 'alterado_em', 'registro_processado')
     search_fields = ('codigo_eol', 'cpf')
-    readonly_fields = ('responsavel', 'cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
-                       'registro_processado')
+    #readonly_fields = ('responsavel', 'cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
+    #                   'registro_processado')
     list_filter = ('registro_processado', 'status')
