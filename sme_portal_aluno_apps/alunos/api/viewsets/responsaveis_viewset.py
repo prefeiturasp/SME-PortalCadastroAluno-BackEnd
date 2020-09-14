@@ -1,8 +1,6 @@
-from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from sme_portal_aluno_apps.eol_servico.utils import EOLService
 from ..serializers.responsavel_serializer import ResponsavelListSerializer
 from ...models.responsavel import Responsavel
 
@@ -22,7 +20,9 @@ class ResponsaveisViewSet(viewsets.ModelViewSet):
         cpf_responsavel = self.request.query_params.get('cpf_responsavel', None)
         status_responsavel = self.request.query_params.get('status', None)
 
-        queryset = queryset.filter(status__in=['CPF_INVALIDO', 'EMAIL_INVALIDO', 'MULTIPLOS_EMAILS'])
+        queryset = queryset.filter(
+            status__in=['CPF_INVALIDO', 'EMAIL_INVALIDO', 'MULTIPLOS_EMAILS']
+        )
 
         if codigo_eol:
             queryset = queryset.filter(alunos__codigo_eol=codigo_eol)
@@ -43,4 +43,4 @@ class ResponsaveisViewSet(viewsets.ModelViewSet):
             status_reverse = dict((v, k) for k, v in Responsavel.STATUS_CHOICES)
             queryset = queryset.filter(responsavel__status=status_reverse[status_responsavel])
 
-        return queryset.order_by('nome')
+        return queryset.distinct('cpf')
