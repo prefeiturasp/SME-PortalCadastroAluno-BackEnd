@@ -46,7 +46,7 @@ class ResponsavelSerializerComCPFEOL(serializers.ModelSerializer):
             retornos[0]['emails'] = emails
             return retornos
         elif RetornoMP.objects.filter(cpf=obj.cpf).count() > 1:
-            return RetornoMPSerializer(RetornoMP.objects.filter(cpf=obj.cpf), many=True).data
+            return RetornoMPSerializer(RetornoMP.objects.filter(cpf=obj.cpf).distinct('mensagem'), many=True).data
         else:
             return RetornoMPSerializer(obj.retornos, many=True).data
 
