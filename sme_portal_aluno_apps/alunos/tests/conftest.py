@@ -3,7 +3,7 @@ from model_bakery import baker
 
 
 @pytest.fixture
-def client_logado(client, django_user_model):
+def client_logado(client, django_user_model, responsavel):
     email = 'test@test.com'
     password = 'bar'
     username = '8888888'
@@ -45,14 +45,15 @@ def aluno(responsavel):
 
 
 @pytest.fixture
-def retorno():
+def retorno(responsavel):
     return baker.make(
         'RetornoMP',
         codigo_eol='3872240',
         cpf='00000000000',
         mensagem='Texto explicativo ao usuário sobre o erro',
         data_ocorrencia='2010-06-12',
-        status=5
+        status=5,
+        responsavel=responsavel
     )
 
 
@@ -99,8 +100,8 @@ def mocked_request_api_eol():
 @pytest.fixture
 def payload_retorno_mp():
     return {
-        "codigo_eol": "0000002",
-        "cpf": "00000000000",
+        "codigo_eol": "3872240",
+        "cpf": "72641869977",
         "status": 5,
         "mensagem": "texto msg",
         "data_ocorrencia": "2016-02-11"
