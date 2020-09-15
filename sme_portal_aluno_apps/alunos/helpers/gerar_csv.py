@@ -21,10 +21,12 @@ log = logging.getLogger(__name__)
 
 def gerar_csv_mp():
     try:
-        queryset = Responsavel.objects.filter(status=Responsavel.STATUS_ATUALIZADO_EOL, enviado_para_mercado_pago=False)
+        queryset = Responsavel.objects.filter(status__in=(Responsavel.STATUS_ATUALIZADO_EOL,
+                                                          Responsavel.STATUS_INCONSISTENCIA_RESOLVIDA),
+                                              enviado_para_mercado_pago=False)
         queryset_to_csv = queryset.annotate(get_celular=Concat('ddd_celular', V(' '), 'celular')).values(
             'nome', 'alunos__nome', 'codigo_eol_aluno', 'cpf', 'email', 'get_celular', 'vinculo', 'data_nascimento',
-            'nome_mae', 'status', 'nao_possui_celular', 'nao_possui_email'
+            'nome_mae', 'status', 'nao_possui_celular', 'nao_possui_email', 'responsavel_alterado'
         )
         qtd_linhas_qs = queryset_to_csv.count()
 

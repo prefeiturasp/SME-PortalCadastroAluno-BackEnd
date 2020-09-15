@@ -24,7 +24,7 @@ def gerar_csv_completo_mp():
         queryset = Responsavel.objects.filter(enviado_para_mercado_pago=True)
         queryset_to_csv = queryset.annotate(get_celular=Concat('ddd_celular', V(' '), 'celular')).values(
             'nome', 'alunos__nome', 'codigo_eol_aluno', 'cpf', 'email', 'get_celular', 'vinculo', 'data_nascimento',
-            'nome_mae', 'status', 'nao_possui_celular', 'nao_possui_email'
+            'nome_mae', 'status', 'nao_possui_celular', 'nao_possui_email', 'responsavel_alterado'
         )
         qtd_linhas_qs = queryset_to_csv.count()
         hoje = date.today()
