@@ -121,8 +121,6 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 validated_data['servidor'] = user.username
             log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
             self.atualiza_payload(validated_data)
-            responsavel = validated_data.pop('responsavel')
-            cpf = responsavel.get('cpf', None)
             try:
                 aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
                 if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
