@@ -111,6 +111,7 @@ class Responsavel(ModeloBase):
     enviado_para_mercado_pago = models.BooleanField(default=False)
 
     data_envio_mercado_pago = models.DateField("Data de Envio Mercado Pago", blank=True, null=True)
+    responsavel_alterado = models.BooleanField(default=False)
 
     def enviar_email(self):
         if self.email:

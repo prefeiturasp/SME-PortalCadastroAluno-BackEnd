@@ -45,6 +45,7 @@ class RetornoMP(ModeloBase):
     mensagem = models.CharField("Mensagem", max_length=255, blank=True, null=True)
     data_ocorrencia = models.DateField("Data de Ocorrencia no MP", blank=True, null=True)
     registro_processado = models.BooleanField("Registro Processado?", default=False)
+    ativo = models.BooleanField("Está ativo?", default=True)
     responsavel = models.ForeignKey(Responsavel, on_delete=models.PROTECT,
                                     blank=True, null=True, related_name='retornos')
 
