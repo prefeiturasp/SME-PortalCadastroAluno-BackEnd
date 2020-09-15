@@ -81,23 +81,19 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         cpf = responsavel.get('cpf', None)
         lista_eol_alunos = Responsavel.objects.filter(cpf=cpf).values_list('codigo_eol_aluno', flat=True)
         if inconsistencia_resolvida:
+            aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             log.info(f"Inicia atualizações dos responsaveis com cpf {cpf}")
             for codigo_eol in lista_eol_alunos:
                 responsavel['status'] = Responsavel.STATUS_INCONSISTENCIA_RESOLVIDA
                 responsavel['enviado_para_mercado_pago'] = False
-                #TODO definir nome da variavel que vai identificar o cadastro_atualizado True e chamar aqui
+                responsavel['responsavel_alterado'] = True
                 responsavel_criado, created = Responsavel.objects.update_or_create(
                     codigo_eol_aluno=codigo_eol, defaults={**responsavel})
-                log.info(
-                    f"Aluno existe. Eol: {codigo_eol}, nome responsavel: {responsavel_criado.nome}")
-
-                codigo = validated_data.pop('codigo_eol')
-                aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
-
-                if responsavel_criado.status == 'INCONSISTENCIA_RESOLVIDA':
-                    responsavel_criado.salvar_no_eol()
+                log.info(f"Aluno existe. Eol: {codigo_eol}, nome responsavel: {responsavel_criado.nome}")
+                responsavel_criado.salvar_no_eol()
                 log.info("Responsavel Atualizado.")
-                return aluno
+                responsavel_criado.retornos.filter(ativo=True).update(ativo=False)
+            return aluno
         else:
             if atualizado_na_escola:
                 validated_data['servidor'] = user.username

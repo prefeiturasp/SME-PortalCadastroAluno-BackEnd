@@ -192,10 +192,13 @@ class EOLService(object):
                                  json=payload)
 
         if response.json() == 'TRUE - ATUALIZACAO EFETUADA COM SUCESSO':
-            log.info(f"Alterando status do responsavel pelo aluno: {codigo_eol} para STATUS_ATUALIZADO_EOL")
-            responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol)
-            responsavel.status = responsavel.STATUS_ATUALIZADO_EOL
-            responsavel.save()
+            try:
+                responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol, responsavel_atualizado=False)
+                responsavel.status = responsavel.STATUS_ATUALIZADO_EOL
+                responsavel.save()
+                log.info(f"Alterando status do responsavel pelo aluno: {codigo_eol} para STATUS_ATUALIZADO_EOL")
+            except Responsavel.DoesNotExist:
+                pass
         else:
             log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
             raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")
