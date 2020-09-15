@@ -50,6 +50,7 @@ class AlunoLookUpSerializer(serializers.ModelSerializer):
 class AlunoCreateSerializer(serializers.ModelSerializer):
     codigo_eol = serializers.CharField()
     responsavel = ResponsavelSerializer()
+    inconsistencia_resolvida = serializers.BooleanField(required=False)
 
     def get_status(self, codigo_eol, cpf, atualizado_na_escola):
         if EOLService.cpf_divergente(codigo_eol, cpf) and atualizado_na_escola:
@@ -75,12 +76,13 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
-        inconsistencia_resolvida = validated_data.get('inconsistencia_resolvida', False)
+        inconsistencia_resolvida = validated_data.pop('inconsistencia_resolvida', False)
         user = self.context['request'].user
         responsavel = validated_data.pop('responsavel')
-        cpf = responsavel.get('cpf', None)
-        lista_eol_alunos = Responsavel.objects.filter(cpf=cpf).values_list('codigo_eol_aluno', flat=True)
         if inconsistencia_resolvida:
+            codigo_eol_aluno = responsavel.pop('codigo_eol_aluno')
+            cpf = Aluno.objects.get(codigo_eol=codigo_eol_aluno).responsavel.cpf
+            lista_eol_alunos = Responsavel.objects.filter(cpf=cpf).values_list('codigo_eol_aluno', flat=True)
             aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             log.info(f"Inicia atualizações dos responsaveis com cpf {cpf}")
             for codigo_eol in lista_eol_alunos:
@@ -88,13 +90,16 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 responsavel['enviado_para_mercado_pago'] = False
                 responsavel['responsavel_alterado'] = True
                 responsavel_criado, created = Responsavel.objects.update_or_create(
-                    codigo_eol_aluno=codigo_eol, defaults={**responsavel})
+                    codigo_eol_aluno=codigo_eol,
+                    defaults={**responsavel}
+                )
                 log.info(f"Aluno existe. Eol: {codigo_eol}, nome responsavel: {responsavel_criado.nome}")
                 responsavel_criado.salvar_no_eol()
                 log.info("Responsavel Atualizado.")
                 responsavel_criado.retornos.filter(ativo=True).update(ativo=False)
             return aluno
         else:
+            cpf = responsavel.get('cpf', None)
             if atualizado_na_escola:
                 validated_data['servidor'] = user.username
             log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
@@ -104,8 +109,8 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
                     raise ValidationError('Solicitação enviada para o mercado pago.')
                 else:
-                    if (
-                        aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
+                    if ((aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL')
+                        and not user.codigo_escola):  # noqa
                         raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
 
                 responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
