@@ -79,43 +79,25 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         responsavel = validated_data.pop('responsavel')
         cpf = responsavel.get('cpf', None)
+        lista_eol_alunos = Responsavel.objects.filter(cpf=cpf).values_list('codigo_eol_aluno', flat=True)
         if inconsistencia_resolvida:
-
-            if atualizado_na_escola:
-                validated_data['servidor'] = user.username
-            log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
-            self.atualiza_payload(validated_data)
-            # responsavel = validated_data.pop('responsavel')
-            # cpf = responsavel.get('cpf', None)
-            try:
-                aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-                if (
-                    aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL') and not user.codigo_escola:
-                    raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
-
+            log.info(f"Inicia atualizações dos responsaveis com cpf {cpf}")
+            for codigo_eol in lista_eol_alunos:
                 responsavel['status'] = Responsavel.STATUS_INCONSISTENCIA_RESOLVIDA
                 responsavel['enviado_para_mercado_pago'] = False
                 #TODO definir nome da variavel que vai identificar o cadastro_atualizado True e chamar aqui
                 responsavel_criado, created = Responsavel.objects.update_or_create(
-                    codigo_eol_aluno=validated_data['codigo_eol'], defaults={**responsavel})
+                    codigo_eol_aluno=codigo_eol, defaults={**responsavel})
                 log.info(
-                    f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
-            except Aluno.DoesNotExist:
-                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
-                if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
-                    responsavel['pendencia_resolvida'] = True
-                responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
-                validated_data['responsavel'] = responsavel_criado
-                log.info(
-                    f"Aluno criado. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
-            codigo = validated_data.pop('codigo_eol')
-            aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
-            log.info("Inicia envio de email.")
-            responsavel_criado.enviar_email()
-            if responsavel_criado.status == 'ATUALIZADO_VALIDO' or responsavel_criado.status == 'PENDENCIA_RESOLVIDA':
-                responsavel_criado.salvar_no_eol()
-            log.info("Aluno Criado/Atualizado.")
-            return aluno
+                    f"Aluno existe. Eol: {codigo_eol}, nome responsavel: {responsavel_criado.nome}")
+
+                codigo = validated_data.pop('codigo_eol')
+                aluno, created = Aluno.objects.update_or_create(codigo_eol=codigo, defaults={**validated_data})
+
+                if responsavel_criado.status == 'INCONSISTENCIA_RESOLVIDA':
+                    responsavel_criado.salvar_no_eol()
+                log.info("Responsavel Atualizado.")
+                return aluno
         else:
             if atualizado_na_escola:
                 validated_data['servidor'] = user.username

@@ -133,7 +133,8 @@ class RetornoMPAdmin(admin.ModelAdmin):
             return '-'
     get_nome_responsavel.short_description = 'Nome Responsável'
 
-    list_display = ('get_nome_responsavel', 'cpf', 'codigo_eol', 'status', 'data_ocorrencia', 'mensagem', 'alterado_em', 'registro_processado')
+    list_display = ('get_nome_responsavel', 'cpf', 'codigo_eol', 'status', 'data_ocorrencia', 'mensagem', 'alterado_em',
+                    'registro_processado', 'ativo')
     search_fields = ('codigo_eol', 'cpf')
     #readonly_fields = ('responsavel', 'cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
     #                   'registro_processado')
