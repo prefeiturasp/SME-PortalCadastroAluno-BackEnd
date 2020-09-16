@@ -1,11 +1,18 @@
 import logging
 
+from ..tasks import enviar_email_solicitacao_uniforme
 from ..models.responsavel import Responsavel
 
 log = logging.getLogger(__name__)
 
 
 class ProcessarRetornoService(object):
+
+    @classmethod
+    def enviar_email_inconsistencia(self, responsavel):
+        enviar_email_solicitacao_uniforme.delay(
+            'Inconsistência nos dados informados', 'email_inconsistencia', responsavel.email,
+            {'nome': responsavel.alunos.nome, 'id': responsavel.id})
 
     @classmethod
     def processar_todos_credito_consedido(cls):
@@ -27,7 +34,11 @@ class ProcessarRetornoService(object):
             responsavel.status = Responsavel.STATUS_CPF_INVALIDO
             responsavel.save()
             log.info(f"responsavel pelo aluno {responsavel.codigo_eol_aluno} atualizado para cpf invalido")
-            # TODO Chamar aqui rotina de envio de e-mail
+            log.info(f'Enviando email inconsistencia para: {responsavel.email}.')
+            # TODO descomentar quando for subir para prod
+            # log.info(f"Inicia envio de e-mail de inconsistencia")
+            # if responsavel.email:
+            #     cls.enviar_email_inconsistencia(responsavel)
 
         except Responsavel.DoesNotExist:
             log.info(f"Resposavel informado não existe na base")
@@ -40,7 +51,10 @@ class ProcessarRetornoService(object):
             responsavel.status = Responsavel.STATUS_MULTIPLOS_EMAILS
             responsavel.save()
             log.info(f"responsavel pelo aluno {responsavel.codigo_eol_aluno} atualizado para multiplos e-mails")
-            # TODO Chamar aqui rotina de envio de e-mail
+            # TODO descomentar quando for subir para prod
+            # log.info(f"Inicia envio de e-mail de inconsistencia")
+            # if responsavel.email:
+            #     cls.enviar_email_inconsistencia(responsavel)
 
         except Responsavel.DoesNotExist:
             log.info(f"Resposavel informado não existe na base")

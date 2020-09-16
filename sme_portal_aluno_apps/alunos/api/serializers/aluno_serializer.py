@@ -75,6 +75,12 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def create(self, validated_data):
+        '''
+        Código responsavel por criar e atualizar as informações de responsaveis e alunos.
+        Este código atende ao pedido de uniforme portal da familia, painel admin escola e painel inconsistência escola.
+        Quando existe inconsistência resolvida significa que todos os responsaveis com o mesmo cpf são atualizados com
+        os mesmos dados.
+        '''
         atualizado_na_escola = validated_data.get('atualizado_na_escola', False)
         inconsistencia_resolvida = validated_data.pop('inconsistencia_resolvida', False)
         user = self.context['request'].user
@@ -93,9 +99,10 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                     codigo_eol_aluno=codigo_eol,
                     defaults={**responsavel}
                 )
-                log.info(f"Aluno existe. Eol: {codigo_eol}, nome responsavel: {responsavel_criado.nome}")
+                log.info(f"Responsavel Atualizado. Eol aluno: {codigo_eol}, "
+                         f"nome responsavel: {responsavel_criado.nome}")
                 responsavel_criado.salvar_no_eol()
-                log.info("Responsavel Atualizado.")
+                log.info(f"Atualizando retorno do responsavel {responsavel_criado.nome} para ativo false.")
                 responsavel_criado.retornos.filter(ativo=True).update(ativo=False)
             return aluno
         else:
