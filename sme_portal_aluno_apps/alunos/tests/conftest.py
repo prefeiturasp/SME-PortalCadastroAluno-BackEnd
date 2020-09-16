@@ -16,7 +16,7 @@ def client_logado(client, django_user_model, responsavel):
 
 
 @pytest.fixture
-def responsavel_erro():
+def responsaveis_erro():
     responsavel = baker.make(
         'Responsavel',
         codigo_eol_aluno='3872240',
@@ -30,10 +30,28 @@ def responsavel_erro():
         nome_mae='Mãe Fulano',
         status='CPF_INVALIDO'
     )
+    responsavel_2 = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='4000000',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='teste2@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='EMAIL_INVALIDO'
+    )
     baker.make(
         'Aluno',
         codigo_eol='3872240',
         responsavel=responsavel
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='4000000',
+        responsavel=responsavel_2
     )
     baker.make('RetornoMP',
                responsavel=responsavel,
@@ -42,7 +60,69 @@ def responsavel_erro():
                cpf='72641869977',
                codigo_eol='3872240',
                data_ocorrencia='2020-09-14')
+    baker.make('RetornoMP',
+               responsavel=responsavel_2,
+               status=RetornoMP.STATUS_EMAIL_INVALIDO,
+               mensagem='Email inválido',
+               cpf='72641869977',
+               codigo_eol='4000000',
+               data_ocorrencia='2020-09-14')
     return responsavel
+
+
+@pytest.fixture
+def responsaveis_multiplos_emails_erro():
+    responsavel = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='3872240',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='email1@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='MULTIPLOS_EMAILS'
+    )
+    responsavel_2 = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='4000000',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='email2@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='MULTIPLOS_EMAILS'
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='3872240',
+        responsavel=responsavel
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='4000000',
+        responsavel=responsavel_2
+    )
+    baker.make('RetornoMP',
+               responsavel=responsavel,
+               status=RetornoMP.STATUS_MULTIPLOS_EMAILS,
+               mensagem='Múltiplos e-mails',
+               cpf='72641869977',
+               codigo_eol='3872240',
+               data_ocorrencia='2020-09-14')
+    baker.make('RetornoMP',
+               responsavel=responsavel_2,
+               status=RetornoMP.STATUS_MULTIPLOS_EMAILS,
+               mensagem='Múltiplos e-mails',
+               cpf='72641869977',
+               codigo_eol='4000000',
+               data_ocorrencia='2020-09-14')
+    return responsavel, responsavel_2
 
 
 @pytest.fixture
@@ -60,7 +140,7 @@ def payload_responsavel_erro():
             "cd_cpf_responsavel": "72641869977",
             "cd_ddd_celular_responsavel": "27",
             "nr_celular_responsavel": "998391001",
-            "email_responsavel": "teste@gmail.com",
+            "email_responsavel": "emailcorrigido@emailcorrigido.com",
             "tp_pessoa_responsavel": 2,
             "nome_mae": "Maria das Neves",
             "data_nascimento": "1992-02-08"
@@ -68,9 +148,19 @@ def payload_responsavel_erro():
     }
 
 
+@pytest.fixture
+def client_logado_multiplos_emails(client, django_user_model, responsaveis_multiplos_emails_erro):
+    email = 'test@test.com'
+    password = 'bar'
+    username = '8888888'
+    django_user_model.objects.create_user(password=password, email=email,
+                                          username=username)
+    client.login(username=username, password=password)
+    return client
+
 
 @pytest.fixture
-def client_logado_responsavel_erro(client, django_user_model, responsavel_erro):
+def client_logado_responsavel_erro(client, django_user_model, responsaveis_erro):
     email = 'test@test.com'
     password = 'bar'
     username = '8888888'
