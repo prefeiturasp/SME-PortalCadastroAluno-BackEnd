@@ -88,7 +88,8 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         if inconsistencia_resolvida:
             codigo_eol_aluno = responsavel.pop('codigo_eol_aluno')
             cpf = Aluno.objects.get(codigo_eol=codigo_eol_aluno).responsavel.cpf
-            lista_eol_alunos = Responsavel.objects.filter(cpf=cpf).values_list('codigo_eol_aluno', flat=True)
+            lista_eol_alunos = Responsavel.objects.filter(cpf=cpf).exclude(
+                status=Responsavel.STATUS_CREDITO_CONCEDIDO).values_list('codigo_eol_aluno', flat=True)
             aluno = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
             log.info(f"Inicia atualizações dos responsaveis com cpf {cpf}")
             for codigo_eol in lista_eol_alunos:
