@@ -3,7 +3,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 
-from .models import (Aluno, Responsavel, LogConsultaEOL, RetornoMP)
+from .models import (Aluno, Responsavel, LogConsultaEOL, RetornoMP, LogErroAtualizacaoEOL)
 from .forms import LogConsultaEOLForm
 from ..utils.actions import export_as_xls
 
@@ -139,3 +139,14 @@ class RetornoMPAdmin(admin.ModelAdmin):
     #readonly_fields = ('responsavel', 'cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
     #                   'registro_processado')
     list_filter = ('registro_processado', 'status')
+
+
+@admin.register(LogErroAtualizacaoEOL)
+class LogErroAtualizacaoEOLAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'cpf', 'codigo_eol', 'criado_em',)
+    search_fields = ('nome', 'cpf', 'codigo_eol',)
+    readonly_fields = ('criado_em',)
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
+    fields = ('nome', 'cpf', 'codigo_eol', 'criado_em', 'resolvido', 'erro')
