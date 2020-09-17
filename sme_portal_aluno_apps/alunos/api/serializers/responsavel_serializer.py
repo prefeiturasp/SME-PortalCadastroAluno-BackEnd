@@ -42,9 +42,11 @@ class ResponsavelSerializerComCPFEOL(serializers.ModelSerializer):
     def get_retornos(self, obj):
         if obj.status == 'MULTIPLOS_EMAILS':
             retornos = RetornoMPSerializer(obj.retornos.filter(ativo=True), many=True).data
-            emails = [retorno.responsavel.email for retorno in
-                      RetornoMP.objects.filter(responsavel__cpf=obj.cpf, ativo=True).all()]
-            retornos[0]['emails'] = emails
+            if retornos:
+                emails = [retorno.responsavel.email for retorno in
+                          RetornoMP.objects.filter(responsavel__cpf=obj.cpf, ativo=True).distinct(
+                              'responsavel__email').all()]
+                retornos[0]['emails'] = emails
             return retornos
         elif RetornoMP.objects.filter(cpf=obj.cpf).count() > 1:
             return RetornoMPSerializer(RetornoMP.objects.filter(cpf=obj.cpf, ativo=True).distinct('mensagem'),
