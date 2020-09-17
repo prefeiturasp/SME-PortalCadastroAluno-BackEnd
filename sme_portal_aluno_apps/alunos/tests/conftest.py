@@ -149,6 +149,82 @@ def payload_responsavel_erro():
 
 
 @pytest.fixture
+def responsaveis_dashboard():
+    responsavel = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='3872241',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='teste@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='CPF_INVALIDO'
+    )
+    responsavel_2 = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='4000001',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='teste2@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='EMAIL_INVALIDO'
+    )
+    responsavel_3 = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='4000002',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='teste2@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='ATUALIZADO_VALIDO',
+    )
+    responsavel_4 = baker.make(
+        'Responsavel',
+        codigo_eol_aluno='4000003',
+        nome='Fulano',
+        vinculo=2,
+        cpf='72641869977',
+        email='teste2@teste.com',
+        ddd_celular='027',
+        celular='999999999',
+        data_nascimento='2014-06-12',
+        nome_mae='Mãe Fulano',
+        status='ATUALIZADO_VALIDO',
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='3872241',
+        responsavel=responsavel
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='4000001',
+        responsavel=responsavel_2
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='4000002',
+        responsavel=responsavel_3,
+        atualizado_na_escola=True
+    )
+    baker.make(
+        'Aluno',
+        codigo_eol='4000003',
+        responsavel=responsavel_4
+    )
+
+@pytest.fixture
 def client_logado_multiplos_emails(client, django_user_model, responsaveis_multiplos_emails_erro):
     email = 'test@test.com'
     password = 'bar'
