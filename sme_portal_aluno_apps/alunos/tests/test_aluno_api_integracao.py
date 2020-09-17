@@ -102,3 +102,35 @@ def test_aluno_api_create_or_update_multiplos_emails(client_logado_multiplos_ema
         assert responsavel.email == 'emailcorrigido@emailcorrigido.com'
         assert responsavel.enviado_para_mercado_pago is False
         assert responsavel.retornos.filter(ativo=True).count() is 0
+
+
+def test_dashboard(client_logado):
+    response = client_logado.get(f'/api/alunos/dashboard/')
+    assert response.status_code == status.HTTP_200_OK
+    results = response.json().get('results')
+    assert 'cadastros_com_pendencias_resolvidas' in results
+    assert 'cadastros_validados' in results
+    assert 'alunos_online' in results['cadastros_validados']
+    assert 'alunos_escola' in results['cadastros_validados']
+    assert 'total' in results['cadastros_validados']
+    assert 'cadastros_desatualizados' in results
+    assert 'cadastros_com_pendencias_resolvidas' in results
+    assert 'cadastros_divergentes' in results
+    assert 'total_alunos' in results
+    assert 'cpf_invalido' in results
+    assert 'email_invalido' in results
+    assert 'multiplos_emails' in results
+    assert 'inconsistencias_resolvidas' in results
+    assert 'creditos_concedidos' in results
+
+
+def test_dashboard_com_dados(client_logado_multiplos_emails, responsaveis_dashboard):
+    response = client_logado_multiplos_emails.get(f'/api/alunos/dashboard/')
+    assert response.status_code == status.HTTP_200_OK
+    results = response.json().get('results')
+    assert results['multiplos_emails'] == 2
+    assert results['email_invalido'] == 1
+    assert results['cpf_invalido'] == 1
+    assert results['cadastros_validados']['alunos_online'] == 1
+    assert results['cadastros_validados']['alunos_escola'] == 1
+    assert results['cadastros_validados']['total'] == 2
