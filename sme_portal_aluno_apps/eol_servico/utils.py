@@ -6,7 +6,7 @@ import requests
 from rest_framework import status
 from requests.auth import HTTPBasicAuth
 
-from ..alunos.models import Aluno, Responsavel
+from ..alunos.models import Aluno, Responsavel, LogErroAtualizacaoEOL
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
 from ..alunos.api.services.aluno_service import AlunoService
 from .helpers import ajusta_cpf
@@ -201,6 +201,7 @@ class EOLService(object):
                 pass
         else:
             log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
+            LogErroAtualizacaoEOL.objects.create(codigo_eol=codigo_eol, cpf=cpf, nome=nome, erro=response.json())
             raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")
 
     @classmethod
