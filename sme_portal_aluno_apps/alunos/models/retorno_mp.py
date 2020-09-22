@@ -1,7 +1,13 @@
 from django.core import validators
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from sme_portal_aluno_apps.alunos.models import Responsavel
 from sme_portal_aluno_apps.core.models_abstracts import ModeloBase
 from .validators import cpf_validation
+
+from sme_portal_aluno_apps.alunos.helpers.processamento_retorno_mp import ProcessarRetornoService
 
 
 class RetornoMP(ModeloBase):
@@ -39,6 +45,9 @@ class RetornoMP(ModeloBase):
     mensagem = models.CharField("Mensagem", max_length=255, blank=True, null=True)
     data_ocorrencia = models.DateField("Data de Ocorrencia no MP", blank=True, null=True)
     registro_processado = models.BooleanField("Registro Processado?", default=False)
+    ativo = models.BooleanField("Está ativo?", default=True)
+    responsavel = models.ForeignKey(Responsavel, on_delete=models.PROTECT,
+                                    blank=True, null=True, related_name='retornos')
 
     def __str__(self):
         return f'{self.cpf} - {self.codigo_eol}'
@@ -46,3 +55,24 @@ class RetornoMP(ModeloBase):
     class Meta:
         verbose_name = "Retorno do Mercado Pago"
         verbose_name_plural = "Retornos do Mercado Pago"
+
+
+@receiver(post_save, sender=RetornoMP)
+def retorno_post_save(instance, created, **kwargs):
+    if created and instance:
+        if instance.status == RetornoMP.STATUS_CREDITADO:
+            Responsavel.objects.filter(id=instance.responsavel.id).update(status=Responsavel.STATUS_CREDITO_CONCEDIDO)
+            instance.registro_processado = True
+            instance.save()
+        elif instance.status == RetornoMP.STATUS_CPF_INVALIDO:
+            ProcessarRetornoService.cpf_invalido(instance.responsavel.id)
+            instance.registro_processado = True
+            instance.save()
+        elif instance.status == RetornoMP.STATUS_EMAIL_INVALIDO:
+            Responsavel.objects.filter(id=instance.responsavel.id).update(status=Responsavel.STATUS_EMAIL_INVALIDO)
+            instance.registro_processado = True
+            instance.save()
+        elif instance.status == RetornoMP.STATUS_MULTIPLOS_EMAILS:
+            ProcessarRetornoService.multiplos_emails(instance.responsavel.id)
+            instance.registro_processado = True
+            instance.save()

@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 from smtplib import SMTPServerDisconnected
 
@@ -10,21 +11,18 @@ from sme_portal_aluno_apps.core.helpers.enviar_email import enviar_email_html, e
 from sme_portal_aluno_apps.core.models import Email, LogEmailMercadoPago
 
 
-# @periodic_task(run_every=crontab(hour=4, minute=0))
+@celery_app.task(
+    autoretry_for=(SMTPServerDisconnected,),
+    retry_backoff=2,
+    retry_kwargs={'max_retries': 8},
+)
 def enviar_emails_engasgados():
-    emails = Email.objects.filter(enviar_para__isnull=False, enviado=False)
-    EMAILS = [{"email": "nao-responda20@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda21@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda22@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda23@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda24@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda25@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda26@sme.prefeitura.sp.gov.br"},
-              {"email": "nao-responda27@sme.prefeitura.sp.gov.br"}]
+    emails = Email.objects.filter(enviar_para__isnull=False, enviado=False, criado_em__gt=datetime.date(2020, 10, 1))
+
     for email in emails:
         contexto = {'id': email.id}
         enviar_email_html(assunto=email.assunto, template=None, contexto=contexto, enviar_para=email.enviar_para,
-                          html_salvo=email.body, lista_emails=EMAILS)
+                          html_salvo=email.body, lista_emails=None)
 
 
 def enviar_emails_cadastros_divergentes():
