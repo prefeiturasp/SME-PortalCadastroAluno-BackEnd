@@ -3,7 +3,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 
-from .models import (Aluno, Responsavel, LogConsultaEOL)
+from .models import (Aluno, Responsavel, LogConsultaEOL, RetornoMP, LogErroAtualizacaoEOL)
 from .forms import LogConsultaEOLForm
 from ..utils.actions import export_as_xls
 
@@ -122,3 +122,31 @@ class LogConsultaEOLAdmin(admin.ModelAdmin):
         fields.JSONField: {'widget': JSONEditorWidget},
     }
     fields = ('codigo_eol', 'criado_em', 'json')
+
+
+@admin.register(RetornoMP)
+class RetornoMPAdmin(admin.ModelAdmin):
+    def get_nome_responsavel(self, obj):
+        if obj.responsavel:
+            return obj.responsavel.nome
+        else:
+            return '-'
+    get_nome_responsavel.short_description = 'Nome Responsável'
+
+    list_display = ('get_nome_responsavel', 'cpf', 'codigo_eol', 'status', 'data_ocorrencia', 'mensagem', 'alterado_em',
+                    'registro_processado', 'ativo')
+    search_fields = ('codigo_eol', 'cpf')
+    readonly_fields = ('responsavel', 'cpf', 'codigo_eol', 'status', 'mensagem', 'data_ocorrencia', 'criado_em', 'alterado_em',
+                      'registro_processado')
+    list_filter = ('registro_processado', 'status')
+
+
+@admin.register(LogErroAtualizacaoEOL)
+class LogErroAtualizacaoEOLAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'cpf', 'codigo_eol', 'criado_em',)
+    search_fields = ('nome', 'cpf', 'codigo_eol',)
+    readonly_fields = ('criado_em',)
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
+    fields = ('nome', 'cpf', 'codigo_eol', 'criado_em', 'resolvido', 'erro')

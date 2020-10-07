@@ -55,3 +55,11 @@ def reenviar_pedidos_ja_enviados_ao_mp():
     log.info('Iniciando processo de geração de arquivo e envio por e-mail ao MP.')
     gerar_csv_completo_mp()
     log.info('Processo finalizado.')
+
+
+@celery_app.task(soft_time_limit=1000, time_limit=1200)
+def processar_pedidos_creditados():
+    from ..alunos.helpers.processamento_retorno_mp import ProcessarRetornoService
+    log.info(f"Inicia processo de atualização para crédito concedido em massa")
+    ProcessarRetornoService.processar_todos_credito_consedido()
+    log.info('Processo finalizado.')

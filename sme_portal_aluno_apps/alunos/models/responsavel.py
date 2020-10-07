@@ -18,6 +18,11 @@ class Responsavel(ModeloBase):
     STATUS_DIVERGENTE = 'DIVERGENTE'
     STATUS_DESATUALIZADO = 'DESATUALIZADO'
     STATUS_PENDENCIA_RESOLVIDA = 'PENDENCIA_RESOLVIDA'
+    STATUS_CREDITO_CONCEDIDO = 'CREDITO_CONCEDIDO'
+    STATUS_INCONSISTENCIA_RESOLVIDA = 'INCONSISTENCIA_RESOLVIDA'
+    STATUS_CPF_INVALIDO = 'CPF_INVALIDO'
+    STATUS_EMAIL_INVALIDO = 'EMAIL_INVALIDO'
+    STATUS_MULTIPLOS_EMAILS = 'MULTIPLOS_EMAILS'
 
     STATUS_NOMES = {
         STATUS_ATUALIZADO_EOL: 'Cadastro Atualizado no EOL',
@@ -25,6 +30,11 @@ class Responsavel(ModeloBase):
         STATUS_DIVERGENTE: 'Cadastro Divergente',
         STATUS_DESATUALIZADO: 'Cadastro Desatualizado',
         STATUS_PENDENCIA_RESOLVIDA: 'Cadastro com Pendência Resolvida',
+        STATUS_CREDITO_CONCEDIDO: 'Cadastro com Crédito Concedido',
+        STATUS_INCONSISTENCIA_RESOLVIDA: 'Cadastro com inconsistência resolvida',
+        STATUS_CPF_INVALIDO: 'Cadastro com CPF inválido',
+        STATUS_EMAIL_INVALIDO: 'Cadastro com e-mail inválido',
+        STATUS_MULTIPLOS_EMAILS: 'Cadastro com mais de um e-mail cadastrado',
     }
 
     STATUS_CHOICES = (
@@ -33,6 +43,11 @@ class Responsavel(ModeloBase):
         (STATUS_DIVERGENTE, STATUS_NOMES[STATUS_DIVERGENTE]),
         (STATUS_DESATUALIZADO, STATUS_NOMES[STATUS_DESATUALIZADO]),
         (STATUS_PENDENCIA_RESOLVIDA, STATUS_NOMES[STATUS_PENDENCIA_RESOLVIDA]),
+        (STATUS_CREDITO_CONCEDIDO, STATUS_NOMES[STATUS_CREDITO_CONCEDIDO]),
+        (STATUS_INCONSISTENCIA_RESOLVIDA, STATUS_NOMES[STATUS_INCONSISTENCIA_RESOLVIDA]),
+        (STATUS_CPF_INVALIDO, STATUS_NOMES[STATUS_CPF_INVALIDO]),
+        (STATUS_EMAIL_INVALIDO, STATUS_NOMES[STATUS_EMAIL_INVALIDO]),
+        (STATUS_MULTIPLOS_EMAILS, STATUS_NOMES[STATUS_MULTIPLOS_EMAILS]),
     )
 
     # Vinculo Choice
@@ -96,6 +111,7 @@ class Responsavel(ModeloBase):
     enviado_para_mercado_pago = models.BooleanField(default=False)
 
     data_envio_mercado_pago = models.DateField("Data de Envio Mercado Pago", blank=True, null=True)
+    responsavel_alterado = models.BooleanField(default=False)
 
     def enviar_email(self):
         if self.email:

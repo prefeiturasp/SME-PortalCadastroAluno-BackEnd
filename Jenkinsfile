@@ -1,21 +1,21 @@
 pipeline {
     agent {
-      node { 
+      node {
         label 'py-uniformes'
 	    }
     }
-    
+
     options {
       buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
       disableConcurrentBuilds()
-      skipDefaultCheckout()  
+      skipDefaultCheckout()
     }
-           
+
     stages {
        stage('CheckOut') {
         steps {
           step([$class: 'GitHubSetCommitStatusBuilder'])
-          checkout scm		
+          checkout scm
         }
        }
        stage('Analise codigo') {
@@ -27,10 +27,10 @@ pipeline {
                     -Dsonar.projectKey=SME-PortalCadastroAluno-BackEnd \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=http://sonar.sme.prefeitura.sp.gov.br \
-                    -Dsonar.login=72681ab039989ea1be8c9125ffd3db7024e7b913'
+                    -Dsonar.login=edc2c1239f41dd25c35bedbeee0c845334d43f87'
             }
        }
-      
+
        stage('Docker Build DEV') {
          when {
            branch 'develop'
@@ -55,16 +55,16 @@ pipeline {
               tailLog: true])
            }
         }
-       }    
-                
-       
+       }
+
+
       stage('Deploy DEV') {
          when {
            branch 'develop'
          }
-        steps { 
-       
-           //Start JOB de deploy Kubernetes 
+        steps {
+
+           //Start JOB de deploy Kubernetes
           sh 'echo Deploy ambiente desenvolvimento'
           script {
             step([$class: "RundeckNotifier",
@@ -82,19 +82,19 @@ pipeline {
               tags: "",
               tailLog: true])
           }
-        } 
+        }
        }
-       
+
        stage('Docker Build HOM') {
          when {
            branch 'homolog'
          }
         steps {
-          
+
           script {
             step([$class: "RundeckNotifier",
               includeRundeckLogs: true,
-                             
+
               //JOB DE BUILD
               jobId: "787560d7-f32e-4645-86a1-4eec1159ef57",
               nodeFilters: "",
@@ -120,9 +120,9 @@ pipeline {
           timeout(time: 24, unit: "HOURS") {
           // telegramSend("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME} - Requer uma aprovação para deploy !!!\n Consulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)\n")
             input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'ebufaino, marcos_nastri, calvin_rossinhole, ollyver_ottoboni, kelwy_oliveira'
-          }  
-          //Start JOB deploy Kubernetes 
-         
+          }
+          //Start JOB deploy Kubernetes
+
           script {
             step([$class: "RundeckNotifier",
               includeRundeckLogs: true,
@@ -147,11 +147,11 @@ pipeline {
            branch 'master'
          }
         steps {
-          
+
           script {
             step([$class: "RundeckNotifier",
               includeRundeckLogs: true,
-                             
+
               //JOB DE BUILD
               jobId: "ea1a4806-c910-4fb7-8a34-afd5177cbc79",
               nodeFilters: "",
@@ -177,9 +177,9 @@ pipeline {
           timeout(time: 24, unit: "HOURS") {
           // telegramSend("${JOB_NAME}...O Build ${BUILD_DISPLAY_NAME} - Requer uma aprovação para deploy !!!\n Consulte o log para detalhes -> [Job logs](${env.BUILD_URL}console)\n")
             input message: 'Deseja realizar o deploy?', ok: 'SIM', submitter: 'ebufaino, marcos_nastri, calvin_rossinhole, ollyver_ottoboni, kelwy_oliveira'
-          }    
-          //Start JOB deploy kubernetes 
-         
+          }
+          //Start JOB deploy kubernetes
+
           script {
             step([$class: "RundeckNotifier",
               includeRundeckLogs: true,
@@ -198,8 +198,8 @@ pipeline {
           }
         }
        }
-    } 
-  	   
+    }
+
   post {
         always {
           echo 'One way or another, I have finished'
