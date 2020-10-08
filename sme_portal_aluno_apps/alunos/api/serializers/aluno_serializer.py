@@ -116,6 +116,8 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
                 if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
                     raise ValidationError('Solicitação enviada para o mercado pago.')
+                elif aluno_obj.responsavel.status == 'INCONSISTENCIA_RESOLVIDA' and not user.codigo_escola:
+                    raise ValidationError('Solicitação com inconsistência resolvida. Não pode atualizar os dados.')
                 else:
                     if ((aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL')
                         and not user.codigo_escola):  # noqa
