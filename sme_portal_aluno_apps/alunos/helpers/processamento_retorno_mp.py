@@ -35,10 +35,9 @@ class ProcessarRetornoService(object):
             responsavel.save()
             log.info(f"responsavel pelo aluno {responsavel.codigo_eol_aluno} atualizado para cpf invalido")
             log.info(f'Enviando email inconsistencia para: {responsavel.email}.')
-            # TODO descomentar quando for subir para prod
-            # log.info(f"Inicia envio de e-mail de inconsistencia")
-            # if responsavel.email:
-            #     cls.enviar_email_inconsistencia(responsavel)
+            log.info(f"Inicia envio de e-mail de inconsistencia")
+            if responsavel.email:
+                cls.enviar_email_inconsistencia(responsavel)
 
         except Responsavel.DoesNotExist:
             log.info(f"Resposavel informado não existe na base")
@@ -51,10 +50,9 @@ class ProcessarRetornoService(object):
             responsavel.status = Responsavel.STATUS_MULTIPLOS_EMAILS
             responsavel.save()
             log.info(f"responsavel pelo aluno {responsavel.codigo_eol_aluno} atualizado para multiplos e-mails")
-            # TODO descomentar quando for subir para prod
-            # log.info(f"Inicia envio de e-mail de inconsistencia")
-            # if responsavel.email:
-            #     cls.enviar_email_inconsistencia(responsavel)
+            log.info(f"Inicia envio de e-mail de inconsistencia")
+            if responsavel.email:
+                cls.enviar_email_inconsistencia(responsavel)
 
         except Responsavel.DoesNotExist:
             log.info(f"Resposavel informado não existe na base")
