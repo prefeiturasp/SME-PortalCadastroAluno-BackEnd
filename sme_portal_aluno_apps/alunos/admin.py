@@ -66,6 +66,22 @@ class TemCelularFilter(SimpleListFilter):
             return queryset
 
 
+class TemEmailFilter(SimpleListFilter):
+    title = 'tem_email'
+    parameter_name = 'email'
+
+    def lookups(self, request, model_admin):
+        return [('Sim', 'Sim'), ('Não', 'Não')]
+
+    def queryset(self, request, queryset):
+        if self.value() == 'Sim':
+            return queryset.filter(email__isnull=False)
+        elif self.value() == 'Não':
+            return queryset.filter(email__isnull=True)
+        else:
+            return queryset
+
+
 @admin.register(Responsavel)
 class ResponsavelAdmin(admin.ModelAdmin):
     inlines = [AlunoInLine]
@@ -108,7 +124,7 @@ class ResponsavelAdmin(admin.ModelAdmin):
                     'status', 'criado_em')
     ordering = ('-alterado_em',)
     search_fields = ('uuid', 'cpf', 'nome', 'codigo_eol_aluno')
-    list_filter = ('status', TemCelularFilter)
+    list_filter = ('status', TemCelularFilter, TemEmailFilter)
     actions = ['enviar_emails', 'salvar_no_eol', export_as_xls]
 
 
