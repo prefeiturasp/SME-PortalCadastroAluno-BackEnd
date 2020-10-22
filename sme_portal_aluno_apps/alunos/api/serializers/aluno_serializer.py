@@ -108,12 +108,18 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             return aluno
         else:
             cpf = responsavel.get('cpf', None)
+            nome = responsavel.get('nome', None)
+            aceita_divergencia = responsavel.get('aceita_divergencia', False)
+            cpf_divergente = EOLService.cpf_divergente(validated_data['codigo_eol'], cpf)
+            nome_divergente = EOLService.nome_divergente(validated_data['codigo_eol'], nome)
             if atualizado_na_escola:
                 validated_data['servidor'] = user.username
             log.info(f"Criando Aluno com códio eol: {validated_data.get('codigo_eol')}")
             self.atualiza_payload(validated_data)
             try:
                 aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
+                if not aceita_divergencia and not cpf_divergente and nome_divergente and not user.codigo_escola:
+                    raise AssertionError('Solicitação com inconsistência no nome.')
                 if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
                     raise ValidationError('Solicitação enviada para o mercado pago.')
                 elif aluno_obj.responsavel.status == 'INCONSISTENCIA_RESOLVIDA' and not user.codigo_escola:

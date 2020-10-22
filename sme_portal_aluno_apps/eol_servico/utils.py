@@ -126,6 +126,18 @@ class EOLService(object):
             return cpf != cpf_eol
 
     @classmethod
+    def nome_divergente(cls, codigo_eol, nome):
+        nome_eol = ''
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if results and results[0]['responsaveis']:
+                nome_eol = results[0]['responsaveis'][0].pop('nm_responsavel').strip()
+            return nome != nome_eol
+
+    @classmethod
     def cria_aluno_desatualizado(cls, codigo_eol):
         dados = cls.get_informacoes_responsavel(codigo_eol)
         cls.registra_log(codigo_eol, dados)

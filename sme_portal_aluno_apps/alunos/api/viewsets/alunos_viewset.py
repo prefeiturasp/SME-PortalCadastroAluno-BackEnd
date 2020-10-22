@@ -130,6 +130,8 @@ class AlunosViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
         except ConnectTimeout:
             return Response({'detail': 'EOL Timeout'}, status=status.HTTP_400_BAD_REQUEST)
+        except AssertionError as e:
+            return Response({'detail': f'{e}'}, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, codigo_eol=None, **kwargs):
         try:
