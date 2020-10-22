@@ -118,18 +118,21 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
             self.atualiza_payload(validated_data)
             try:
                 aluno_obj = Aluno.objects.get(codigo_eol=validated_data['codigo_eol'])
-                if not aceita_divergencia and not cpf_divergente and nome_divergente and not user.codigo_escola:
-                    raise AssertionError('Solicitação com inconsistência no nome.')
                 if aluno_obj.responsavel.enviado_para_mercado_pago and not user.codigo_escola:
                     raise ValidationError('Solicitação enviada para o mercado pago.')
                 elif aluno_obj.responsavel.status == 'INCONSISTENCIA_RESOLVIDA' and not user.codigo_escola:
                     raise ValidationError('Solicitação com inconsistência resolvida. Não pode atualizar os dados.')
+                elif ((aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL')
+                      and not user.codigo_escola):  # noqa
+                    raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
                 else:
-                    if ((aluno_obj.atualizado_na_escola or aluno_obj.responsavel.status == 'ATUALIZADO_EOL')
-                        and not user.codigo_escola):  # noqa
-                        raise ValidationError('Solicitação finalizada. Não pode atualizar os dados.')
+                    if not aceita_divergencia and not cpf_divergente and nome_divergente and not user.codigo_escola:
+                        raise AssertionError('Solicitação com inconsistência no nome.')
 
-                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                if aceita_divergencia and not user.codigo_escola:
+                    responsavel['status'] = 'DIVERGENTE'
+                else:
+                    responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
                 if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
                     responsavel['pendencia_resolvida'] = True
                 responsavel_criado, created = Responsavel.objects.update_or_create(
@@ -137,7 +140,10 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 log.info(
                     f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
             except Aluno.DoesNotExist:
-                responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                if aceita_divergencia and not user.codigo_escola:
+                    responsavel['status'] = 'DIVERGENTE'
+                else:
+                    responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
                 if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
                     responsavel['pendencia_resolvida'] = True
                 responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
