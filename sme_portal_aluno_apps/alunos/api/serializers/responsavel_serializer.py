@@ -64,7 +64,7 @@ class ResponsavelSerializerComCPFEOL(serializers.ModelSerializer):
         fields = ('codigo_eol_aluno', 'nm_responsavel', 'cd_cpf_responsavel', 'cd_ddd_celular_responsavel',
                   'nr_celular_responsavel', 'email_responsavel', 'tp_pessoa_responsavel', 'nome_mae',
                   'data_nascimento', 'status', 'cpf_eol', 'nao_possui_celular', 'nao_possui_email',
-                  'enviado_para_mercado_pago', 'retornos')
+                  'enviado_para_mercado_pago', 'retornos', 'nome_responsavel_eol')
 
 
 class ResponsavelListSerializer(serializers.ModelSerializer):
