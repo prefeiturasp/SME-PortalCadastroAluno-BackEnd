@@ -35,10 +35,14 @@ class ResponsavelSerializerComCPFEOL(serializers.ModelSerializer):
     email_responsavel = serializers.CharField(source='email', validators=[validators.email_validation], required=False,
                                               allow_null=True)
     cpf_eol = serializers.SerializerMethodField()
+    nome_responsavel_eol = serializers.SerializerMethodField()
     retornos = serializers.SerializerMethodField()
 
     def get_cpf_eol(self, obj):
         return EOLService.get_cpf_eol_responsavel(obj.codigo_eol_aluno)
+
+    def get_nome_responsavel_eol(self, obj):
+        return EOLService.get_nome_eol_responsavel(obj.codigo_eol_aluno)
 
     def get_retornos(self, obj):
         if obj.status == 'MULTIPLOS_EMAILS':

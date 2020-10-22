@@ -77,6 +77,20 @@ class EOLService(object):
             raise EOLException(f'Código EOL não existe')
 
     @classmethod
+    def get_nome_eol_responsavel(cls, codigo_eol):
+        log.info(f"Buscando nome do responsável pelo aluno de eol: {codigo_eol}")
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if len(results) == 1:
+                return results[0]['responsaveis'][0].pop('nm_responsavel').strip()
+            raise EOLException(f'Resultados para o código: {codigo_eol} vazios')
+        else:
+            raise EOLException(f'Código EOL não existe')
+
+    @classmethod
     def registra_log(cls, codigo_eol, json):
         LogConsultaEOL.objects.create(codigo_eol=codigo_eol, json=json)
 
