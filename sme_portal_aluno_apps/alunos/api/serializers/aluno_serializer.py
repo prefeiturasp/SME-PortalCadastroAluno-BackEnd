@@ -52,8 +52,9 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
     responsavel = ResponsavelSerializer()
     inconsistencia_resolvida = serializers.BooleanField(required=False)
 
-    def get_status(self, codigo_eol, cpf, atualizado_na_escola):
-        if EOLService.cpf_divergente(codigo_eol, cpf) and atualizado_na_escola:
+    def get_status(self, codigo_eol, cpf, atualizado_na_escola, nome=None):
+        if ((EOLService.cpf_divergente(codigo_eol, cpf) or (nome and EOLService.nome_divergente(codigo_eol, nome)))
+            and atualizado_na_escola):  # noqa
             return 'PENDENCIA_RESOLVIDA'
         elif EOLService.cpf_divergente(codigo_eol, cpf):
             return 'DIVERGENTE'
@@ -132,7 +133,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 if aceita_divergencia and not user.codigo_escola:
                     responsavel['status'] = 'DIVERGENTE'
                 else:
-                    responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                    responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola, nome)
                 if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
                     responsavel['pendencia_resolvida'] = True
                 responsavel_criado, created = Responsavel.objects.update_or_create(
@@ -143,7 +144,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 if aceita_divergencia and not user.codigo_escola:
                     responsavel['status'] = 'DIVERGENTE'
                 else:
-                    responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola)
+                    responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola, nome)
                 if responsavel['status'] == 'PENDENCIA_RESOLVIDA':
                     responsavel['pendencia_resolvida'] = True
                 responsavel_criado, created = Responsavel.objects.update_or_create(**responsavel)
