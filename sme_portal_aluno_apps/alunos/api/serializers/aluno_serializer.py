@@ -141,7 +141,9 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
                 log.info(
                     f"Aluno existe. Eol: {validated_data['codigo_eol']}, nome responsavel: {responsavel_criado.nome}")
             except Aluno.DoesNotExist:
-                if aceita_divergencia and not user.codigo_escola:
+                if not aceita_divergencia and not cpf_divergente and nome_divergente and not user.codigo_escola:
+                    raise AssertionError('Solicitação com inconsistência no nome.')
+                elif aceita_divergencia and not user.codigo_escola:
                     responsavel['status'] = 'DIVERGENTE'
                 else:
                     responsavel['status'] = self.get_status(validated_data['codigo_eol'], cpf, atualizado_na_escola, nome)
