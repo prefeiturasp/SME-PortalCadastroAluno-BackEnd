@@ -110,7 +110,7 @@ class AlunoCreateSerializer(serializers.ModelSerializer):
         else:
             cpf = responsavel.get('cpf', None)
             nome = responsavel.get('nome', None)
-            aceita_divergencia = responsavel.get('aceita_divergencia', False)
+            aceita_divergencia = responsavel.pop('aceita_divergencia', False)
             cpf_divergente = EOLService.cpf_divergente(validated_data['codigo_eol'], cpf)
             nome_divergente = EOLService.nome_divergente(validated_data['codigo_eol'], nome)
             if atualizado_na_escola:
