@@ -41,6 +41,6 @@ class ResponsaveisViewSet(viewsets.ModelViewSet):
 
         if status_responsavel:
             status_reverse = dict((v, k) for k, v in Responsavel.STATUS_CHOICES)
-            queryset = queryset.filter(responsavel__status=status_reverse[status_responsavel])
+            queryset = queryset.filter(status=status_reverse[status_responsavel])
 
         return queryset.distinct('cpf')
