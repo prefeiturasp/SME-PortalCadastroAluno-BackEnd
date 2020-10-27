@@ -6,7 +6,7 @@ import requests
 from rest_framework import status
 from requests.auth import HTTPBasicAuth
 
-from ..alunos.models import Aluno, Responsavel
+from ..alunos.models import Aluno, Responsavel, LogErroAtualizacaoEOL
 from ..alunos.models.log_consulta_eol import LogConsultaEOL
 from ..alunos.api.services.aluno_service import AlunoService
 from .helpers import ajusta_cpf
@@ -77,6 +77,20 @@ class EOLService(object):
             raise EOLException(f'Código EOL não existe')
 
     @classmethod
+    def get_nome_eol_responsavel(cls, codigo_eol):
+        log.info(f"Buscando nome do responsável pelo aluno de eol: {codigo_eol}")
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if len(results) == 1:
+                return results[0]['responsaveis'][0].pop('nm_responsavel').strip()
+            raise EOLException(f'Resultados para o código: {codigo_eol} vazios')
+        else:
+            raise EOLException(f'Código EOL não existe')
+
+    @classmethod
     def registra_log(cls, codigo_eol, json):
         LogConsultaEOL.objects.create(codigo_eol=codigo_eol, json=json)
 
@@ -124,6 +138,18 @@ class EOLService(object):
             if results and results[0]['responsaveis']:
                 cpf_eol = ajusta_cpf(results[0]['responsaveis'][0].pop('cd_cpf_responsavel'))
             return cpf != cpf_eol
+
+    @classmethod
+    def nome_divergente(cls, codigo_eol, nome):
+        nome_eol = ''
+        response = requests.get(f'{DJANGO_EOL_API_URL}/responsaveis/{codigo_eol}',
+                                headers=cls.DEFAULT_HEADERS,
+                                timeout=cls.DEFAULT_TIMEOUT)
+        if response.status_code == status.HTTP_200_OK:
+            results = response.json()['results']
+            if results and results[0]['responsaveis']:
+                nome_eol = results[0]['responsaveis'][0].pop('nm_responsavel').strip()
+            return nome != nome_eol
 
     @classmethod
     def cria_aluno_desatualizado(cls, codigo_eol):
@@ -192,12 +218,16 @@ class EOLService(object):
                                  json=payload)
 
         if response.json() == 'TRUE - ATUALIZACAO EFETUADA COM SUCESSO':
-            log.info(f"Alterando status do responsavel pelo aluno: {codigo_eol} para STATUS_ATUALIZADO_EOL")
-            responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol)
-            responsavel.status = responsavel.STATUS_ATUALIZADO_EOL
-            responsavel.save()
+            try:
+                responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol, responsavel_atualizado=False)
+                responsavel.status = responsavel.STATUS_ATUALIZADO_EOL
+                responsavel.save()
+                log.info(f"Alterando status do responsavel pelo aluno: {codigo_eol} para STATUS_ATUALIZADO_EOL")
+            except Responsavel.DoesNotExist:
+                pass
         else:
             log.info(f"Erro ao atualizar dados do responsavel pelo aluno: {codigo_eol}. Erro: {response.json()}")
+            LogErroAtualizacaoEOL.objects.create(codigo_eol=codigo_eol, cpf=cpf, nome=nome, erro=response.json())
             raise EOLException(f"Erro ao atualizar responsavel: {response.json()}")
 
     @classmethod
