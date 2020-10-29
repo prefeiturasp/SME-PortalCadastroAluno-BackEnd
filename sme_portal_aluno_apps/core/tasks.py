@@ -17,7 +17,7 @@ from sme_portal_aluno_apps.core.models import Email, LogEmailMercadoPago
     retry_kwargs={'max_retries': 8},
 )
 def enviar_emails_engasgados():
-    emails = Email.objects.filter(enviar_para__isnull=False, enviado=False, criado_em__gt=datetime.date(2020, 10, 1))
+    emails = Email.objects.filter(enviar_para__isnull=False, enviado=False, criado_em__gt=datetime.date(2020, 10, 29))
 
     for email in emails:
         contexto = {'id': email.id}
