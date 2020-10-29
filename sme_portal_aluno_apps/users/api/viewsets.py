@@ -70,6 +70,9 @@ class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericV
             return Response({'detail': 'Não existe usuário com este e-mail ou RF'},
                             status=status.HTTP_400_BAD_REQUEST)
         if usuario.atualiza_senha(senha=senha1, token=token_reset):
+            if not usuario.is_active:
+                usuario.is_active = True
+                usuario.save()
             return Response({'sucesso!': 'senha atualizada com sucesso'})
         else:
             return Response({'detail': 'Token inválido'}, status.HTTP_400_BAD_REQUEST)
