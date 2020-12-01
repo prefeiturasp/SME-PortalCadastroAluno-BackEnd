@@ -11,6 +11,7 @@ from ..alunos.models.log_consulta_eol import LogConsultaEOL
 from ..alunos.api.services.aluno_service import AlunoService
 from .helpers import ajusta_cpf
 from ..core.constants import ESCOLAS_CEI
+from ..core.utils import remove_accents
 
 env = environ.Env()
 DJANGO_EOL_API_TOKEN = env('DJANGO_EOL_API_TOKEN')
@@ -149,7 +150,7 @@ class EOLService(object):
             results = response.json()['results']
             if results and results[0]['responsaveis']:
                 nome_eol = results[0]['responsaveis'][0].pop('nm_responsavel').strip()
-            return nome != nome_eol
+            return remove_accents(nome).upper() != remove_accents(nome_eol).upper()
 
     @classmethod
     def cria_aluno_desatualizado(cls, codigo_eol):
