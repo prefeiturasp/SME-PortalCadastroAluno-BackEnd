@@ -123,7 +123,7 @@ class EOLService(object):
                 if cod_eol_escola in ESCOLAS_CEI:
                     results = [aluno for aluno in results if
                                aluno.get('dc_serie_ensino') in ['INFANTIL I', 'INFANTIL II']]
-                return results
+                return [aluno for aluno in results if 'EJA' not in aluno.get('dc_serie_ensino')]
             raise EOLException(f'Resultados para o Código EOL: {cod_eol_escola} vazios')
         else:
             raise EOLException(f'API EOL com erro. Status: {response.status_code}')
