@@ -220,7 +220,7 @@ class EOLService(object):
 
         if response.json() == 'TRUE - ATUALIZACAO EFETUADA COM SUCESSO':
             try:
-                responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol, responsavel_atualizado=False)
+                responsavel = Responsavel.objects.get(codigo_eol_aluno=codigo_eol, responsavel_alterado=False)
                 responsavel.status = responsavel.STATUS_ATUALIZADO_EOL
                 responsavel.save()
                 log.info(f"Alterando status do responsavel pelo aluno: {codigo_eol} para STATUS_ATUALIZADO_EOL")
